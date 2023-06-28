@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "thread": "cpp",
+        "*.tcc": "cpp"
+    },
+    "python.autoComplete.extraPaths": [
+        "/home/renjie/workspace/catkin_ws/devel/lib/python3/dist-packages",
+        "/home/renjie/ws_livox/devel/lib/python3/dist-packages",
+        "/home/renjie/ws_moveit/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages",
+        "/home/renjie/nuscenes-devkit/python-sdk"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/renjie/workspace/catkin_ws/devel/lib/python3/dist-packages",
+        "/home/renjie/ws_livox/devel/lib/python3/dist-packages",
+        "/home/renjie/ws_moveit/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages",
+        "/home/renjie/nuscenes-devkit/python-sdk"
+    ]
+}
