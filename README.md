@@ -64,4 +64,4 @@ Visualize nuScenes v1.0-mini dataset in rviz:
 ```
 roslaunch bev_lidar_cali nuscenes_rviz.launch 
 ```
-<img src="/images/nuscene_rviz.png" width="500" alt="nuscene_rviz"/>
+<img src="/images/nuscene_rivz.png" width="500" alt="nuscene_rviz"/>
