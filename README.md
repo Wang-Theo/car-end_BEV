@@ -20,6 +20,8 @@ This is a project to calibration car-end multi-camera system with road-end lidar
 ### 2. **nuScenes Dataset**
 * Full dataset (v1.0) - mini
 
+<img src="/images/sensor_setup.png" width="500" alt="Sensor_set"/>
+
 Download dataset
 ```
 mkdir -p /data/sets/nuscenes
@@ -41,5 +43,25 @@ Setup environment variable
 - add path `export PYTHONPATH="${PYTHONPATH}:$HOME/nuscenes-devkit/python-sdk"` and  `export NUSCENES="/data/sets/nuscenes"`
 
 ## Build
+- Python `.ipynb` test file
 
-Change ipynb environment to conda environment `nuscenes`
+Change ipynb environment to conda environment `nuscenes` and run `.ipynb` test file
+
+- C++
+
+The tool is a normal ROS package. Place it under a workspace and build it with catkin.
+```
+catkin_make -DCATKIN_WHITELIST_PACKAGES=bev_lidar_cali
+source devel/setup.bash
+```
+
+## Run
+
+We convert nuScenes dataset to a roabag referring repo [nuScenes2Bag](https://github.com/clynamen/nuscenes2bag) developed by [clynamen](https://github.com/clynamen/) and [
+ChernoA](https://github.com/ChernoA)
+
+Visualize nuScenes v1.0-mini dataset in rviz:
+```
+roslaunch bev_lidar_cali nuscenes_rviz.launch 
+```
+<img src="/images/nuscene_rivz.png" width="500" alt="nuscene_rviz"/>
