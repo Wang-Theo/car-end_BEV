@@ -4,18 +4,31 @@
 
 namespace bevlidar {
 
+cv::Mat CamBEV::BirdEyeView(std::vector<cv::Mat> images){
+	cv::Mat result_image;
+
+    // joint images
+    // to do......
+
+    if(result_image.empty()) std::cout<<"\n======fail to joint image======"<<std::endl;
+    return images[0];
+}
+
 void CamBEV::ImageCallback(const sensor_msgs::ImageConstPtr& msg_cam1, 
                             const sensor_msgs::ImageConstPtr& msg_cam2){
     cv::Mat image1 = cv_bridge::toCvShare(msg_cam1, "bgr8")->image;
+    six_cam_images.push_back(image1);
     cv::Mat image2 = cv_bridge::toCvShare(msg_cam2, "bgr8")->image;
+    six_cam_images.push_back(image2);
 
     if(image1.data==NULL||image2.data==NULL)
     {
         std::cout<<"no image received"<<std::endl;
     }
 
-    cv::rotate(image1, BEV_images, cv ::ROTATE_90_CLOCKWISE);
-    sensor_msgs::ImagePtr out_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", BEV_images).toImageMsg();
+    BEV_image = BirdEyeView(six_cam_images);
+    six_cam_images.clear();
+    sensor_msgs::ImagePtr out_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", BEV_image).toImageMsg();
     pub.publish(out_msg);
 }
 
@@ -25,14 +38,13 @@ void CamBEV::CamPublisher(ros::NodeHandle nh){
 
     // ros::Rate loop_rate(30);
     // while (nh.ok()) {
-	//     if(!BEV_images.empty()){
-	//     	sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", BEV_images).toImageMsg();
+	//     if(!BEV_image.empty()){
+	//     	sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", BEV_image).toImageMsg();
 	//     	pub.publish(msg);
 	//     }
     //     ros::spinOnce();
     //     loop_rate.sleep();
     // }
-
 }
 
 void CamBEV::CamSubscriber(ros::NodeHandle nh){

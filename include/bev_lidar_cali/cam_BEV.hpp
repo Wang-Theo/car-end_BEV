@@ -29,20 +29,23 @@ class CamBEV{
         std::string img1_topic = "/cam_front/raw";
         std::string img2_topic = "/cam_front_left/raw";
         std::string pub_img_topic = "/BEV_images";
-        cv::Mat BEV_images;
+        cv::Mat BEV_image;
 
         ros::Publisher pub;
         typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image,sensor_msgs::Image> SyncPolicy;
-        message_filters::Subscriber<sensor_msgs::Image>* subscriber_image1 ;             // topic1 输入
+        message_filters::Subscriber<sensor_msgs::Image>* subscriber_image1;   // topic1 输入
         message_filters::Subscriber<sensor_msgs::Image>* subscriber_image2;   // topic2 输入
         message_filters::Synchronizer<SyncPolicy>* sync_;
 
+        std::vector<cv::Mat> six_cam_images;
     public:
         void ImageCallback(const sensor_msgs::ImageConstPtr& msg_cam1, 
                             const sensor_msgs::ImageConstPtr& msg_cam2);
         
         void CamPublisher(ros::NodeHandle nh);
         void CamSubscriber(ros::NodeHandle nh);
+
+        cv::Mat BirdEyeView(std::vector<cv::Mat> images);
 };
 } // namespace bevlidar
 
