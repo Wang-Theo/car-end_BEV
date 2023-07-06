@@ -33,5 +33,5 @@ for i in range(len(list)):
         print("\n")
         file.write("\n")
     print(list[i])
-    file.write(list[i])
+    file.write(str(list[i])+" ")
 
