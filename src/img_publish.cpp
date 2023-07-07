@@ -4,52 +4,9 @@
 
 namespace bevlidar {
 
-cv::Mat CamBEV::BirdEyeView(std::vector<cv::Mat> images){
-	cv::Mat result_image;
-
-    // 1. to BEV
-    cv::Point2f corners[4];// 4 points in original image
-    cv::Point2f corners_trans[4];// 4 points in transformed image
-
-    //**车载场景图象的其他参数**//
-    float roi_x0=0;
-    float roi_y0=0;
-    float ROI_HEIGHT=900;
-    float ROI_WIDTH=1600;
-    //************************//
-    cv::Point2d P1(400.f, 600.f), P2(800.f, 600.f), 
-                P3(400.f, 800.f), P4(800.f, 800.f);
-
-    corners[0] = P2;
-    corners[1] = P3;
-    corners[2] = P1;
-    corners[3] = P4;
-
-    //设定逆透视图的宽度
-    float IPM_WIDTH=1600;
-    float N=2;
-    //保证逆透视图的宽度大概为N个车头宽
-    float sacale=(IPM_WIDTH/N)/ROI_WIDTH;
-    float IPM_HEIGHT=ROI_HEIGHT*sacale;
-
-    //逆透视图初始化
-    cv::Mat dst=cv::Mat::zeros(IPM_HEIGHT+50,IPM_WIDTH,images[1].type());
-
-    corners_trans[0] = cv::Point2f(IPM_WIDTH/2-IPM_WIDTH/(2*N),0);  //P2
-    corners_trans[1] = cv::Point2f(IPM_WIDTH/2+IPM_WIDTH/(2*N),0);  //P3
-    corners_trans[2] = cv::Point2f(IPM_WIDTH/2-IPM_WIDTH/(2*N),IPM_HEIGHT);   //P1
-    corners_trans[3] = cv::Point2f(IPM_WIDTH/2+IPM_WIDTH/(2*N),IPM_HEIGHT);   //P4
-
-    //计算原图到逆透视图和逆透视图到原图的变换矩阵
-    auto warpMatrix_src2ipm = cv::getPerspectiveTransform(corners, corners_trans);
-    cv::warpPerspective(images[1], dst, warpMatrix_src2ipm, dst.size());
-
-    //标出点
-    for(int i=0;i<4;i++)
-        circle(dst,corners_trans[i],5,cv::Scalar(0,255,255),4);
-
-    // 2. ORB Detection
-    cv::Mat orb_images;
+cv::Mat CamBEV::OrbDetect(std::vector<cv::Mat> images){
+    // ORB Detection
+    cv::Mat result_image;
 	// create ORB detection
 	cv::Ptr<cv::ORB> orb = cv::ORB::create();
 	// create descriptor  
@@ -63,40 +20,82 @@ cv::Mat CamBEV::BirdEyeView(std::vector<cv::Mat> images){
         if(keypoint[i].pt.y>300)
             keypoint_filtered.push_back(keypoint[i]);
     }
-    drawKeypoints(images[1], keypoint_filtered, orb_images, cv::Scalar(0, 255, 0), cv::DrawMatchesFlags::DEFAULT);
+    drawKeypoints(images[1], keypoint_filtered, result_image, cv::Scalar(0, 255, 0), cv::DrawMatchesFlags::DEFAULT);
 
-    // 3. joint images
-    cv::Mat join_image;
+    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.jpg",result_image);
+    if(result_image.empty()) std::cout<<"\n======fail to detect orb======"<<std::endl;
+    return result_image;
+}
+
+cv::Mat CamBEV::JoinImageDirect(std::vector<cv::Mat> images){
+    // joint images
+    cv::Mat result_image;
     int w1 = images[0].cols; int h1 = images[0].rows;
 	int w2 = images[1].cols; int h2 = images[1].rows;
     int w3 = images[2].cols; int h3 = images[2].rows;
 	int width = w1 + w2 + w3; int height = std::max(h1, std::max(h2, h3));
-	join_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
-	cv::Mat ROI_1 = join_image(cv::Rect(0, 0, w1, h1));
-	cv::Mat ROI_2 = join_image(cv::Rect(w1, 0, w2, h2));
-    cv::Mat ROI_3 = join_image(cv::Rect(w1 + w2, 0, w3, h3));
+	result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+	cv::Mat ROI_1 = result_image(cv::Rect(0, 0, w1, h1));
+	cv::Mat ROI_2 = result_image(cv::Rect(w1, 0, w2, h2));
+    cv::Mat ROI_3 = result_image(cv::Rect(w1 + w2, 0, w3, h3));
 	images[0].copyTo(ROI_1);
 	images[1].copyTo(ROI_2);
     images[2].copyTo(ROI_3);
 
-    switch (flag)
-    {
-    case 1:
-        result_image = dst;
-        break;
-    case 2:
-        result_image = orb_images;
-        break;
-    case 3:
-        result_image = join_image;
-        break;
-    default:
-        break;
-    } 
+    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.jpg",result_image);
+    if(result_image.empty()) std::cout<<"\n======fail to joint image======"<<std::endl;
+    return result_image;
+}
+
+cv::Mat CamBEV::BirdEyeView(std::vector<cv::Mat> images){
+	cv::Mat result_image;
+
+    // to BEV
+    cv::Point2f corners[4];// 4 points in original image
+    cv::Point2f corners_trans[4];// 4 points in transformed image
+
+    //**parameters of ROI area cut from camera images**//
+    float roi_x0=0;
+    float roi_y0=0;
+    float ROI_HEIGHT=1600;
+    float ROI_WIDTH=800;
+    //************************//
+    cv::Point2d P1(400.f, 600.f), P2(800.f, 600.f), 
+                P3(400.f, 900.f), P4(800.f, 900.f);
+
+    corners[0] = P1;
+    corners[1] = P2;
+    corners[2] = P3;
+    corners[3] = P4;
+
+    // set width of perspective image
+    float IPM_WIDTH=1600;
+    float N=5;
+    // make widith of perspcetive image as N * width of vehicle front part
+    float sacale=(IPM_WIDTH/N)/ROI_WIDTH;
+    float IPM_HEIGHT=ROI_HEIGHT*sacale;
+
+    // initialize 
+    cv::Mat dst=cv::Mat::zeros(IPM_HEIGHT+50,IPM_WIDTH,images[1].type());
+
+    corners_trans[0] = cv::Point2f(IPM_WIDTH/2-IPM_WIDTH/(2*N),0);  //P2
+    corners_trans[1] = cv::Point2f(IPM_WIDTH/2+IPM_WIDTH/(2*N),0);  //P3
+    corners_trans[2] = cv::Point2f(IPM_WIDTH/2-IPM_WIDTH/(2*N),IPM_HEIGHT);   //P1
+    corners_trans[3] = cv::Point2f(IPM_WIDTH/2+IPM_WIDTH/(2*N),IPM_HEIGHT);   //P4
+
+    // compute transformation martix
+    auto warpMatrix_src2ipm = cv::getPerspectiveTransform(corners, corners_trans);
+    cv::warpPerspective(images[1], dst, warpMatrix_src2ipm, dst.size());
+
+    // mark points
+    for(int i=0;i<4;i++)
+        circle(dst,corners_trans[i],5,cv::Scalar(0,255,255),4);
+
+    result_image = dst;
 
     cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.jpg",result_image);
     if(result_image.empty()) std::cout<<"\n======fail to joint image======"<<std::endl;
-    else return result_image;
+    return result_image;
 }
 
 void CamBEV::ImageCallback(const sensor_msgs::ImageConstPtr& msg_img_front, 
@@ -129,7 +128,25 @@ void CamBEV::ImageCallback(const sensor_msgs::ImageConstPtr& msg_img_front,
     six_cam_images[image_front_left, image_front, image_front_right, image_back_right, image_back, image_back_left]
     */
 
-    BEV_image = BirdEyeView(six_cam_images);
+    // =====process images from 6 cameras======
+
+    switch (flag)
+    {
+    case 1:
+        BEV_image = BirdEyeView(six_cam_images);
+        break;
+    case 2:
+        BEV_image = OrbDetect(six_cam_images);
+        break;
+    case 3:
+        BEV_image = JoinImageDirect(six_cam_images);
+        break;
+    default:
+        break;
+    } 
+
+    // =====process images from 6 cameras======
+
     six_cam_images.clear();
     sensor_msgs::ImagePtr out_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", BEV_image).toImageMsg();
     pub.publish(out_msg);
