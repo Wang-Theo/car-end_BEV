@@ -47,17 +47,14 @@ cv::Mat CamBEV::JoinImageDirect(std::vector<cv::Mat> images){
     return result_image;
 }
 
-cv::Mat CamBEV::BirdEyeView(std::vector<cv::Mat> images){
-	cv::Mat result_image;
-
-    // to BEV
+cv::Mat CamBEV::PerspectiveTransform(cv::Mat image){
     cv::Point2f corners[4];// 4 points in original image
     cv::Point2f corners_trans[4];// 4 points in transformed image
 
     //**parameters of ROI area cut from camera images**//
     float roi_x0=0;
-    float roi_y0=0;
-    float ROI_HEIGHT=1600;
+    float roi_y0=200;
+    float ROI_HEIGHT=3000;
     float ROI_WIDTH=800;
     //************************//
     cv::Point2d P1(400.f, 600.f), P2(800.f, 600.f), 
@@ -69,14 +66,14 @@ cv::Mat CamBEV::BirdEyeView(std::vector<cv::Mat> images){
     corners[3] = P4;
 
     // set width of perspective image
-    float IPM_WIDTH=1600;
+    float IPM_WIDTH=800;
     float N=5;
     // make widith of perspcetive image as N * width of vehicle front part
     float sacale=(IPM_WIDTH/N)/ROI_WIDTH;
     float IPM_HEIGHT=ROI_HEIGHT*sacale;
 
     // initialize 
-    cv::Mat dst=cv::Mat::zeros(IPM_HEIGHT+50,IPM_WIDTH,images[1].type());
+    cv::Mat dst=cv::Mat::zeros(IPM_HEIGHT+100,IPM_WIDTH,image.type());
 
     corners_trans[0] = cv::Point2f(IPM_WIDTH/2-IPM_WIDTH/(2*N),0);  //P2
     corners_trans[1] = cv::Point2f(IPM_WIDTH/2+IPM_WIDTH/(2*N),0);  //P3
@@ -85,13 +82,34 @@ cv::Mat CamBEV::BirdEyeView(std::vector<cv::Mat> images){
 
     // compute transformation martix
     auto warpMatrix_src2ipm = cv::getPerspectiveTransform(corners, corners_trans);
-    cv::warpPerspective(images[1], dst, warpMatrix_src2ipm, dst.size());
+    cv::warpPerspective(image, dst, warpMatrix_src2ipm, dst.size());
 
     // mark points
     for(int i=0;i<4;i++)
         circle(dst,corners_trans[i],5,cv::Scalar(0,255,255),4);
+    return dst;
+}
 
-    result_image = dst;
+cv::Mat CamBEV::BirdEyeView(std::vector<cv::Mat> images){
+	cv::Mat result_image;
+
+    cv::Mat image_front_left_ = PerspectiveTransform(images[0]);
+    cv::Mat image_front_ = PerspectiveTransform(images[1]);
+    cv::Mat image_front_right_ = PerspectiveTransform(images[2]);
+
+    // joint images
+    int w1 = image_front_left_.cols; int h1 = image_front_left_.rows;
+	int w2 = image_front_.cols; int h2 = image_front_.rows;
+    int w3 = image_front_right_.cols; int h3 = image_front_right_.rows;
+	int width = w1 + w2 + w3; int height = std::max(h1, std::max(h2, h3));
+	result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+	cv::Mat ROI_1 = result_image(cv::Rect(0, 0, w1, h1));
+	cv::Mat ROI_2 = result_image(cv::Rect(w1, 0, w2, h2));
+    cv::Mat ROI_3 = result_image(cv::Rect(w1 + w2, 0, w3, h3));
+
+	image_front_left_.copyTo(ROI_1);
+	image_front_.copyTo(ROI_2);
+    image_front_right_.copyTo(ROI_3);
 
     cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.jpg",result_image);
     if(result_image.empty()) std::cout<<"\n======fail to joint image======"<<std::endl;
