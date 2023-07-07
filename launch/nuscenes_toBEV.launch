@@ -5,6 +5,7 @@
  
   <node pkg="rosbag" type="play" name="player" output="screen" args="--clock /home/renjie/rosbag/61.bag"/>
 
+  <param name = "flag" type = "int" value = "3" />
   <node  pkg="bev_lidar_cali" name="bev_node" type="test_bev_cam" output="screen" >
   </node>
 

@@ -48,6 +48,8 @@ class CamBEV{
         message_filters::Synchronizer<SyncPolicy>* sync_;
 
         std::vector<cv::Mat> six_cam_images;
+        int flag;
+
     public:
         void ImageCallback(const sensor_msgs::ImageConstPtr& msg_img_front, 
                             const sensor_msgs::ImageConstPtr& msg_img_front_left,

@@ -12,6 +12,7 @@ int main(int argc, char **argv){
     ros::init(argc, argv, "img_publisher");
     ros::NodeHandle nh;
     CamBEV cam_BEV;
+    nh.getParam("flag", cam_BEV.flag);
     cam_BEV.CamSubscriber(nh);
     return 0;
 }
