@@ -20,7 +20,7 @@ catkin_package(
 
 # add library
 add_library(bev_lidar_cali
-    src/img_publish.cpp)
+    src/camera_node.cpp)
 
 include_directories(
   include
