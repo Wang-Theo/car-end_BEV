@@ -7,24 +7,71 @@ namespace bevlidar {
 cv::Mat CamBEV::BirdEyeView(std::vector<cv::Mat> images){
 	cv::Mat result_image;
 
+    // to BEV
+
+	// 1. create ORB detection
+	cv::Ptr<cv::ORB> orb = cv::ORB::create();
+	// 2.create descriptor  
+	std::vector<cv::KeyPoint> keypoint;
+    std::vector<cv::KeyPoint> keypoint_filtered;
+	cv::Mat descriptor;
+	// 3. detect and draw
+	orb->detectAndCompute(images[1], cv::Mat(), keypoint, descriptor);
+    
+    for(int i =0; i<keypoint.size(); i++){
+        if(keypoint[i].pt.y>300)
+            keypoint_filtered.push_back(keypoint[i]);
+    }
+
+    drawKeypoints(images[1], keypoint_filtered, images[1], cv::Scalar(0, 255, 0), cv::DrawMatchesFlags::DEFAULT);
+
     // joint images
     // to do......
-
+    int w1 = images[0].cols; int h1 = images[0].rows;
+	int w2 = images[1].cols; int h2 = images[1].rows;
+    int w3 = images[2].cols; int h3 = images[2].rows;
+	int width = w1 + w2 + w3; int height = std::max(h1, std::max(h2, h3));
+	result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+	cv::Mat ROI_1 = result_image(cv::Rect(0, 0, w1, h1));
+	cv::Mat ROI_2 = result_image(cv::Rect(w1, 0, w2, h2));
+    cv::Mat ROI_3 = result_image(cv::Rect(w1 + w2, 0, w3, h3));
+	images[0].copyTo(ROI_1);
+	images[1].copyTo(ROI_2);
+    images[2].copyTo(ROI_3);
+    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.jpg",result_image);
     if(result_image.empty()) std::cout<<"\n======fail to joint image======"<<std::endl;
-    return images[0];
+    else return result_image;
 }
 
-void CamBEV::ImageCallback(const sensor_msgs::ImageConstPtr& msg_cam1, 
-                            const sensor_msgs::ImageConstPtr& msg_cam2){
-    cv::Mat image1 = cv_bridge::toCvShare(msg_cam1, "bgr8")->image;
-    six_cam_images.push_back(image1);
-    cv::Mat image2 = cv_bridge::toCvShare(msg_cam2, "bgr8")->image;
-    six_cam_images.push_back(image2);
+void CamBEV::ImageCallback(const sensor_msgs::ImageConstPtr& msg_img_front, 
+                            const sensor_msgs::ImageConstPtr& msg_img_front_left,
+                            const sensor_msgs::ImageConstPtr& msg_img_front_right,
+                            const sensor_msgs::ImageConstPtr& msg_img_back,
+                            const sensor_msgs::ImageConstPtr& msg_img_back_left,
+                            const sensor_msgs::ImageConstPtr& msg_img_back_right){
+    cv::Mat image_front_left = cv_bridge::toCvShare(msg_img_front_left, "bgr8")->image;
+    six_cam_images.push_back(image_front_left);
+    cv::Mat image_front = cv_bridge::toCvShare(msg_img_front, "bgr8")->image;
+    six_cam_images.push_back(image_front);
+    cv::Mat image_front_right = cv_bridge::toCvShare(msg_img_front_right, "bgr8")->image;
+    six_cam_images.push_back(image_front_right);
+    cv::Mat image_back_right = cv_bridge::toCvShare(msg_img_back_right, "bgr8")->image;
+    six_cam_images.push_back(image_back_right);
+    cv::Mat image_back = cv_bridge::toCvShare(msg_img_back, "bgr8")->image;
+    six_cam_images.push_back(image_back);
+    cv::Mat image_back_left= cv_bridge::toCvShare(msg_img_back_left, "bgr8")->image;
+    six_cam_images.push_back(image_back_left);
 
-    if(image1.data==NULL||image2.data==NULL)
+    if(image_front_left.data==NULL||image_front.data==NULL
+        ||image_front_right.data==NULL||image_back_right.data==NULL
+        ||image_back.data==NULL||image_back_left.data==NULL)
     {
         std::cout<<"no image received"<<std::endl;
     }
+
+    /*
+    six_cam_images[image_front_left, image_front, image_front_right, image_back_right, image_back, image_back_left]
+    */
 
     BEV_image = BirdEyeView(six_cam_images);
     six_cam_images.clear();
@@ -48,11 +95,17 @@ void CamBEV::CamPublisher(ros::NodeHandle nh){
 }
 
 void CamBEV::CamSubscriber(ros::NodeHandle nh){
-    subscriber_image1 = new message_filters::Subscriber<sensor_msgs::Image>(nh, img1_topic.c_str(), 1);
-    subscriber_image2 = new message_filters::Subscriber<sensor_msgs::Image>(nh, img2_topic.c_str(), 1);
+    subscriber_image_front = new message_filters::Subscriber<sensor_msgs::Image>(nh, img_topic_front.c_str(), 1);
+    subscriber_image_front_left = new message_filters::Subscriber<sensor_msgs::Image>(nh, img_topic_front_left.c_str(), 1);
+    subscriber_image_front_right = new message_filters::Subscriber<sensor_msgs::Image>(nh, img_topic_front_right.c_str(), 1);
+    subscriber_image_back = new message_filters::Subscriber<sensor_msgs::Image>(nh, img_topic_back.c_str(), 1);
+    subscriber_image_back_left = new message_filters::Subscriber<sensor_msgs::Image>(nh, img_topic_back_left.c_str(), 1);
+    subscriber_image_back_right = new message_filters::Subscriber<sensor_msgs::Image>(nh, img_topic_back_right.c_str(), 1);
 
-    sync_ = new  message_filters::Synchronizer<SyncPolicy>(SyncPolicy(10), *subscriber_image1, *subscriber_image2);
-    sync_->registerCallback(boost::bind(&CamBEV::ImageCallback, this, _1, _2));
+    sync_ = new  message_filters::Synchronizer<SyncPolicy>(SyncPolicy(10), *subscriber_image_front, *subscriber_image_front_left, 
+                                                                            *subscriber_image_front_right, *subscriber_image_back, 
+                                                                            *subscriber_image_back_left, *subscriber_image_back_right);
+    sync_->registerCallback(boost::bind(&CamBEV::ImageCallback, this, _1, _2, _3, _4, _5, _6));
 
     pub = nh.advertise<sensor_msgs::Image>(pub_img_topic.c_str(), 1);
 

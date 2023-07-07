@@ -26,21 +26,35 @@
 namespace bevlidar {
 class CamBEV{
     public:
-        std::string img1_topic = "/cam_front/raw";
-        std::string img2_topic = "/cam_front_left/raw";
+        std::string img_topic_front = "/cam_front/raw";
+        std::string img_topic_front_left = "/cam_front_left/raw";
+        std::string img_topic_front_right = "/cam_front_right/raw";
+        std::string img_topic_back = "/cam_back/raw";
+        std::string img_topic_back_left = "/cam_back_left/raw";
+        std::string img_topic_back_right = "/cam_back_right/raw";
         std::string pub_img_topic = "/BEV_images";
         cv::Mat BEV_image;
 
         ros::Publisher pub;
-        typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image,sensor_msgs::Image> SyncPolicy;
-        message_filters::Subscriber<sensor_msgs::Image>* subscriber_image1;   // topic1 输入
-        message_filters::Subscriber<sensor_msgs::Image>* subscriber_image2;   // topic2 输入
+        typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image,sensor_msgs::Image,
+                                                                sensor_msgs::Image,sensor_msgs::Image,
+                                                                sensor_msgs::Image,sensor_msgs::Image> SyncPolicy;
+        message_filters::Subscriber<sensor_msgs::Image>* subscriber_image_front;   // topic1 输入
+        message_filters::Subscriber<sensor_msgs::Image>* subscriber_image_front_left;   // topic2 输入
+        message_filters::Subscriber<sensor_msgs::Image>* subscriber_image_front_right;   // topic3 输入
+        message_filters::Subscriber<sensor_msgs::Image>* subscriber_image_back;   // topic4 输入
+        message_filters::Subscriber<sensor_msgs::Image>* subscriber_image_back_left;   // topic5 输入
+        message_filters::Subscriber<sensor_msgs::Image>* subscriber_image_back_right;   // topic6 输入
         message_filters::Synchronizer<SyncPolicy>* sync_;
 
         std::vector<cv::Mat> six_cam_images;
     public:
-        void ImageCallback(const sensor_msgs::ImageConstPtr& msg_cam1, 
-                            const sensor_msgs::ImageConstPtr& msg_cam2);
+        void ImageCallback(const sensor_msgs::ImageConstPtr& msg_img_front, 
+                            const sensor_msgs::ImageConstPtr& msg_img_front_left,
+                            const sensor_msgs::ImageConstPtr& msg_img_front_right,
+                            const sensor_msgs::ImageConstPtr& msg_img_back,
+                            const sensor_msgs::ImageConstPtr& msg_img_back_left,
+                            const sensor_msgs::ImageConstPtr& msg_img_back_right);
         
         void CamPublisher(ros::NodeHandle nh);
         void CamSubscriber(ros::NodeHandle nh);
