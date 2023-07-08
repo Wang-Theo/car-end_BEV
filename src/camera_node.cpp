@@ -48,8 +48,8 @@ cv::Mat CamBEV::JoinImageDirect(std::vector<cv::Mat> images){
 }
 
 cv::Mat CamBEV::PerspectiveTransform(cv::Mat image){
-    cv::Point2f corners[4];// 4 points in original image
-    cv::Point2f corners_trans[4];// 4 points in transformed image
+    std::vector<cv::Point2f> corners;// 4 points in original image
+    std::vector<cv::Point2f> corners_trans;// 4 points in transformed image
 
     //**parameters of ROI area cut from camera images**//
     float roi_x0=0;
@@ -57,16 +57,16 @@ cv::Mat CamBEV::PerspectiveTransform(cv::Mat image){
     float ROI_HEIGHT=3000;
     float ROI_WIDTH=800;
     //************************//
-    cv::Point2d P1(400.f, 600.f), P2(800.f, 600.f), 
+    cv::Point2f P1(400.f, 700.f), P2(800.f, 700.f), 
                 P3(400.f, 900.f), P4(800.f, 900.f);
 
-    corners[0] = P1;
-    corners[1] = P2;
-    corners[2] = P3;
-    corners[3] = P4;
+    corners.push_back(P1);
+    corners.push_back(P2);
+    corners.push_back(P3);
+    corners.push_back(P4);
 
     // set width of perspective image
-    float IPM_WIDTH=800;
+    float IPM_WIDTH=500;
     float N=5;
     // make widith of perspcetive image as N * width of vehicle front part
     float sacale=(IPM_WIDTH/N)/ROI_WIDTH;
@@ -75,13 +75,14 @@ cv::Mat CamBEV::PerspectiveTransform(cv::Mat image){
     // initialize 
     cv::Mat dst=cv::Mat::zeros(IPM_HEIGHT+100,IPM_WIDTH,image.type());
 
-    corners_trans[0] = cv::Point2f(IPM_WIDTH/2-IPM_WIDTH/(2*N),0);  //P2
-    corners_trans[1] = cv::Point2f(IPM_WIDTH/2+IPM_WIDTH/(2*N),0);  //P3
-    corners_trans[2] = cv::Point2f(IPM_WIDTH/2-IPM_WIDTH/(2*N),IPM_HEIGHT);   //P1
-    corners_trans[3] = cv::Point2f(IPM_WIDTH/2+IPM_WIDTH/(2*N),IPM_HEIGHT);   //P4
+    corners_trans.push_back(cv::Point2f(IPM_WIDTH/2-IPM_WIDTH/(2*N),0));  //P2
+    corners_trans.push_back(cv::Point2f(IPM_WIDTH/2+IPM_WIDTH/(2*N),0));  //P3
+    corners_trans.push_back(cv::Point2f(IPM_WIDTH/2-IPM_WIDTH/(2*N),IPM_HEIGHT));   //P1
+    corners_trans.push_back(cv::Point2f(IPM_WIDTH/2+IPM_WIDTH/(2*N),IPM_HEIGHT));   //P4
 
     // compute transformation martix
-    auto warpMatrix_src2ipm = cv::getPerspectiveTransform(corners, corners_trans);
+    // auto warpMatrix_src2ipm = cv::getPerspectiveTransform(corners, corners_trans);
+    auto warpMatrix_src2ipm = cv::findHomography(corners, corners_trans, cv::RANSAC);
     cv::warpPerspective(image, dst, warpMatrix_src2ipm, dst.size());
 
     // mark points
