@@ -18,10 +18,11 @@ std::vector<cv::Point2f> CamBEV::GetPoints(std::vector<cv::Point2f> real_points,
         std::string translation = root[camera_name]["translation"].asString();
         std::string rotation = root[camera_name]["rotation"].asString();
         std::string camera_intrinsic = root[camera_name]["camera_intrinsic"].asString();
+        std::cout<< "-----------------------------------------" << std::endl;
         std::cout<< camera_name << std::endl;
         std::cout<<"translation: "<< translation << std::endl;
         std::cout<<"rotation: "<< rotation << std::endl;
-        std::cout<<"camera_intrinsic: "<< camera_intrinsic << std::endl;
+        std::cout<<"camera_intrinsic: "<< camera_intrinsic << "\n"<<std::endl;
     }
     img_points = real_points;
     return real_points;
