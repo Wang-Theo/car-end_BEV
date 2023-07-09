@@ -4,6 +4,10 @@
 
 namespace bevlidar {
 
+std::vector<cv::Point2f> GetPoints(std::vector<cv::Point2f> real_points){
+
+}
+
 cv::Mat CamBEV::OrbDetect(std::vector<cv::Mat> images){
     // ORB Detection
     cv::Mat result_image;
@@ -53,11 +57,11 @@ cv::Mat CamBEV::PerspectiveTransform(cv::Mat image){
 
     //**parameters of ROI area cut from camera images**//
     float roi_x0=0;
-    float roi_y0=200;
-    float ROI_HEIGHT=3000;
-    float ROI_WIDTH=800;
+    float roi_y0=0;
+    float ROI_HEIGHT=8000;
+    float ROI_WIDTH=1600;
     //************************//
-    cv::Point2f P1(400.f, 700.f), P2(800.f, 700.f), 
+    cv::Point2f P1(500.f, 600.f), P2(700.f, 600.f), 
                 P3(400.f, 900.f), P4(800.f, 900.f);
 
     corners.push_back(P1);
@@ -66,14 +70,14 @@ cv::Mat CamBEV::PerspectiveTransform(cv::Mat image){
     corners.push_back(P4);
 
     // set width of perspective image
-    float IPM_WIDTH=500;
+    float IPM_WIDTH=1600;
     float N=5;
     // make widith of perspcetive image as N * width of vehicle front part
     float sacale=(IPM_WIDTH/N)/ROI_WIDTH;
     float IPM_HEIGHT=ROI_HEIGHT*sacale;
 
     // initialize 
-    cv::Mat dst=cv::Mat::zeros(IPM_HEIGHT+100,IPM_WIDTH,image.type());
+    cv::Mat dst=cv::Mat::zeros(IPM_HEIGHT,IPM_WIDTH,image.type());
 
     corners_trans.push_back(cv::Point2f(IPM_WIDTH/2-IPM_WIDTH/(2*N),0));  //P2
     corners_trans.push_back(cv::Point2f(IPM_WIDTH/2+IPM_WIDTH/(2*N),0));  //P3

@@ -60,7 +60,8 @@ class CamBEV{
         
         void CamPublisher(ros::NodeHandle nh);
         void CamSubscriber(ros::NodeHandle nh);
-
+        
+        std::vector<cv::Point2f> GetPoints(std::vector<cv::Point2f> real_points);
         cv::Mat BirdEyeView(std::vector<cv::Mat> images);
         cv::Mat PerspectiveTransform(cv::Mat image);
         cv::Mat JoinImageDirect(std::vector<cv::Mat> images);
