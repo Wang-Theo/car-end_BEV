@@ -14,3 +14,13 @@ target_link_libraries(test_read_json
    ${CERES_LIBRARIES}
    ${JSON_INC_PATH}
 )
+
+
+add_executable(test_get_points test_get_points.cpp)
+target_link_libraries(test_get_points
+    bev_lidar_cali
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBS}
+   ${CERES_LIBRARIES}
+   ${JSON_INC_PATH}
+)

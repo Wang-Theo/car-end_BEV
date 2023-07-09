@@ -3,6 +3,9 @@
 
 #include <opencv2/opencv.hpp>
 
+#include <Eigen/Core>
+#include<Eigen/Geometry>
+
 #include "json/json.h"
 
 #include <iostream>
@@ -14,7 +17,8 @@
 namespace bevlidar {
 class ParamProcess{
     public:
-        std::vector<cv::Point2f> ReadJsonTest(std::vector<cv::Point2f> real_points, std::string camera_name);
+        void ReadJsonTest(std::string camera_name);
+        std::vector<cv::Point3f> GetPoints(std::vector<cv::Point3f> real_points, std::string camera_name);
 };
 } // namespace bevlidar
 

@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package( OpenCV REQUIRED)
 find_package(jsoncpp CONFIG REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS include
@@ -30,6 +31,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${JSON_INC_PATH}
+  ${EIGEN3_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME} jsoncpp_lib)
