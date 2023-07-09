@@ -58,6 +58,9 @@ cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image){
     cv::Point2f P1(500.f, 600.f), P2(700.f, 600.f), 
                 P3(400.f, 900.f), P4(800.f, 900.f);
 
+    // cv::Point2f P1(848.79, 962.41), P2(929.84, 915.20), 
+    //             P3(506.84, 1196.05), P4(566.79, 1149.64);
+
     corners.push_back(P1);
     corners.push_back(P2);
     corners.push_back(P3);

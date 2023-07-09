@@ -13,6 +13,7 @@
 #include <string>
 #include <queue>
 #include <thread>
+#include <iomanip>
 
 namespace bevlidar {
 class ParamProcess{
