@@ -1,5 +1,5 @@
-#ifndef CAM_BEV
-#define CAM_BEV
+#ifndef CAMERA_NODE
+#define CAMERA_NODE
 
 #include "ros/ros.h"
 #include "sensor_msgs/CameraInfo.h"
@@ -25,8 +25,13 @@
 #include <queue>
 #include <thread>
 
+#include "bev_lidar_cali/image_process.hpp"
+
 namespace bevlidar {
 class CamBEV{
+    public:
+        CamBEV(std::shared_ptr<ImageProcess> image_processor):image_processor_(image_processor){};
+
     public:
         std::string img_topic_front = "/cam_front/raw";
         std::string img_topic_front_left = "/cam_front_left/raw";
@@ -51,6 +56,7 @@ class CamBEV{
 
         std::vector<cv::Mat> six_cam_images;
         int flag;
+        std::shared_ptr<ImageProcess> image_processor_;
 
     public:
         void ImageCallback(const sensor_msgs::ImageConstPtr& msg_img_front, 
@@ -63,7 +69,6 @@ class CamBEV{
         void CamPublisher(ros::NodeHandle nh);
         void CamSubscriber(ros::NodeHandle nh);
         
-        std::vector<cv::Point2f> GetPoints(std::vector<cv::Point2f> real_points, std::string camera_name);
         cv::Mat BirdEyeView(std::vector<cv::Mat> images);
         cv::Mat PerspectiveTransform(cv::Mat image);
         cv::Mat JoinImageDirect(std::vector<cv::Mat> images);
@@ -71,4 +76,4 @@ class CamBEV{
 };
 } // namespace bevlidar
 
-#endif /* CAM_BEV */
+#endif /* CAMERA_NODE */

@@ -1,4 +1,4 @@
-#include "bev_lidar_cali/cam_BEV.hpp"
+#include "bev_lidar_cali/param_process.hpp"
 
 using namespace bevlidar;
 
@@ -13,7 +13,7 @@ int main(int argc, char **argv){
     real_points.push_back(P3);
     real_points.push_back(P4);
 
-    CamBEV cam_BEV;
-    img_points = cam_BEV.GetPoints(real_points, "CAM_FRONT");
+    ParamProcess processor;
+    img_points = processor.ReadJsonTest(real_points, "CAM_FRONT");
     return 0;
 }

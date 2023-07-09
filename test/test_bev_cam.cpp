@@ -1,18 +1,14 @@
-
-
-#include "bev_lidar_cali/cam_BEV.hpp"
+#include "bev_lidar_cali/camera_node.hpp"
+#include "bev_lidar_cali/image_process.hpp"
 
 using namespace bevlidar;
-
-void publish_cam(ros::NodeHandle nh, CamBEV cam_BEV){
-    cam_BEV.CamPublisher(nh);
-}
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "img_publisher");
     ros::NodeHandle nh;
-    CamBEV cam_BEV;
-    nh.getParam("flag", cam_BEV.flag);
-    cam_BEV.CamSubscriber(nh);
+    auto image_processor = std::make_shared<ImageProcess>();
+    auto cam_BEV = std::make_shared<CamBEV>(image_processor);
+    nh.getParam("flag", cam_BEV->flag);
+    cam_BEV->CamSubscriber(nh);
     return 0;
 }

@@ -21,7 +21,9 @@ catkin_package(
 
 # add library
 add_library(bev_lidar_cali
-    src/camera_node.cpp)
+    src/camera_node.cpp
+    src/param_process.cpp
+    src/image_process.cpp)
 
 include_directories(
   include
