@@ -66,8 +66,29 @@ source devel/setup.bash
 We convert nuScenes dataset to a roabag referring repo [nuScenes2Bag](https://github.com/clynamen/nuscenes2bag) developed by [clynamen](https://github.com/clynamen/) and [
 ChernoA](https://github.com/ChernoA)
 
-Visualize nuScenes v1.0-mini dataset in rviz:
+### 1. Visualize nuScenes v1.0-mini dataset in rviz:
 ```
 roslaunch bev_lidar_cali nuscenes_rviz.launch 
 ```
 <img src="/images/nuscene_rivz.png" width="500" alt="nuscene_rviz"/>
+
+### 2. try bev demo:
+```
+roslaunch bev_lidar_cali nuscenes_toBEV.launch
+```
+You can also change `flag` value in `nuscenes_toBEV.launch` file
+  - flag = 1: Bird of View demo
+  - flag = 2: ORB detection demo
+  - flag = 3: Join images demo
+
+### 3. test get camera parameters:
+```
+rosrun bev_lidar_cali test_read_json
+```
+You can select camera in `GetPoints` function in `test_read_json.cpp` in `test` folder
+  - Camera front: `CAM_FRONT`
+  - Camera front right: `CAM_FRONT_RIGHT`
+  - Camera front left: `CAM_FRONT_LEFT`
+  - Camera back: `CAM_BACK`
+  - Camera back right: `CAM_BACK_RIGHT`
+  - Camera back left: `CAM_BACK_LEFT`
