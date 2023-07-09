@@ -17,7 +17,13 @@ This is a project to calibration car-end multi-camera system with road-end lidar
 * Ubuntu >= 20.04
 * ROS    >= Neotic. [ROS Installation](http://wiki.ros.org/noetic/Installation)
 
-### 2. **nuScenes Dataset**
+### 2. **jsoncpp**
+Execute command to install jsoncpp
+```
+sudo apt-get install libjsoncpp-dev
+```
+
+### 3. **nuScenes Dataset**
 * Full dataset (v1.0) - mini
 
 <img src="/images/sensor_setup.png" width="500" alt="Sensor_set"/>
