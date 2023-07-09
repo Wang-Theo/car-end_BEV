@@ -17,7 +17,7 @@ print("\n"+"calibrated_sensor size: "+str(len(my_calibration)))
 print("\n===================================================")
 
 list = []
-json_list = []
+json_list = {}
 for i in range(12):
     print(i)
     print(my_calibration[i])
@@ -29,12 +29,14 @@ for i in range(12):
             list.append(str(my_calibration[i]["rotation"]))
             list.append(str(my_calibration[i]["camera_intrinsic"]))
             a = {
-                "name":str(my_sensor[j]["channel"]),
-                "translation":str(my_calibration[i]["translation"]),
-                "rotation":str(my_calibration[i]["rotation"]),
-                "camera_intrinsic":str(my_calibration[i]["camera_intrinsic"])
+                str(my_sensor[j]["channel"]):
+                {
+                    "translation":str(my_calibration[i]["translation"]),
+                    "rotation":str(my_calibration[i]["rotation"]),
+                    "camera_intrinsic":str(my_calibration[i]["camera_intrinsic"])
+                }
             }
-            json_list.append(a)
+            json_list.update(a)
             break
 
 print("\n===================================================")

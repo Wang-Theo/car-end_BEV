@@ -17,6 +17,8 @@
 #include <opencv2/calib3d.hpp>
 #include <opencv2/objdetect.hpp>
 
+#include "json/json.h"
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -61,7 +63,7 @@ class CamBEV{
         void CamPublisher(ros::NodeHandle nh);
         void CamSubscriber(ros::NodeHandle nh);
         
-        std::vector<cv::Point2f> GetPoints(std::vector<cv::Point2f> real_points);
+        std::vector<cv::Point2f> GetPoints(std::vector<cv::Point2f> real_points, std::string camera_name);
         cv::Mat BirdEyeView(std::vector<cv::Mat> images);
         cv::Mat PerspectiveTransform(cv::Mat image);
         cv::Mat JoinImageDirect(std::vector<cv::Mat> images);

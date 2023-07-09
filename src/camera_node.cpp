@@ -4,8 +4,25 @@
 
 namespace bevlidar {
 
-std::vector<cv::Point2f> GetPoints(std::vector<cv::Point2f> real_points){
+std::vector<cv::Point2f> CamBEV::GetPoints(std::vector<cv::Point2f> real_points, std::string camera_name){
+    std::vector<cv::Point2f> img_points;
+    Json::Reader reader;
+	Json::Value root;
+    std::ifstream in("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/cali_param.json", std::ios::binary);
+    if (!in.is_open())
+	{
+		std::cout << "Error opening file" <<std::endl;
+	}
 
+	if (reader.parse(in, root)){
+        if(camera_name == "CAMERA_FRONT"){
+            std::string translation = root["CAMERA_FRONT"]["translation"].asString();
+            std::cout<< translation << std::endl;
+            std::cout<< "test" << std::endl;
+        }
+    }
+    img_points = real_points;
+    return real_points;
 }
 
 cv::Mat CamBEV::OrbDetect(std::vector<cv::Mat> images){
