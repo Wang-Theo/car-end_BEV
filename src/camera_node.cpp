@@ -15,8 +15,8 @@ std::vector<cv::Point2f> CamBEV::GetPoints(std::vector<cv::Point2f> real_points,
 	}
 
 	if (reader.parse(in, root)){
-        if(camera_name == "CAMERA_FRONT"){
-            std::string translation = root["CAMERA_FRONT"]["translation"].asString();
+        if(camera_name == "CAM_FRONT"){
+            std::string translation = root[camera_name]["translation"].asString();
             std::cout<< translation << std::endl;
             std::cout<< "test" << std::endl;
         }

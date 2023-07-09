@@ -14,6 +14,6 @@ int main(int argc, char **argv){
     real_points.push_back(P4);
 
     CamBEV cam_BEV;
-    img_points = cam_BEV.GetPoints(real_points, "CAMERA_FRONT");
+    img_points = cam_BEV.GetPoints(real_points, "CAM_FRONT");
     return 0;
 }
