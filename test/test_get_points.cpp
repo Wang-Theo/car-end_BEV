@@ -5,8 +5,8 @@ using namespace bevlidar;
 int main(int argc, char **argv){
     std::vector<cv::Point3f> real_points;
     std::vector<cv::Point3f> img_points;
-    cv::Point3f P1(50.f, 60.f, 1.0f), P2(70.f, 60.f, 1.0f), 
-                P3(40.f, 90.f, 1.0f), P4(80.f, 90.f, 1.0f);
+    cv::Point3f P1(-20.f, 0.f, 100.f), P2(20.f, 0.f, 100.f), 
+                P3(-20.f, 0.f, 100.f), P4(20.f, 0.f, 100.f);
 
     real_points.push_back(P1);
     real_points.push_back(P2);
@@ -15,6 +15,8 @@ int main(int argc, char **argv){
 
     ParamProcess processor;
     img_points = processor.GetPoints(real_points, "CAM_FRONT");
-    std::cout<<"4 points at image: "<< "\n" << img_points <<"\n" <<  std::endl;
+    std::cout<<"4 points at image: " << "\n" ;
+    for(int i =0; i<img_points.size(); i++)
+        std::cout << "p" << i+1 << img_points[i] <<  std::endl;
     return 0;
 }

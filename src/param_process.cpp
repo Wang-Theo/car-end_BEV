@@ -32,7 +32,7 @@ std::vector<cv::Point3f> ParamProcess::GetPoints(std::vector<cv::Point3f> real_p
                          1.49574800619;
 
     Eigen::Quaterniond rot(0.2060347966337182, -0.2026940577919598, 0.6824507824531167, -0.6713610884174485);
-    Eigen::Matrix3d rotation_martix = rot.matrix(); 
+    Eigen::Matrix3d rotation_martix = rot.toRotationMatrix(); 
 
     Eigen::Matrix3d intrinsic_matirx;
     intrinsic_matirx << 1260.8474446004698, 0.0, 807.968244525554, 
