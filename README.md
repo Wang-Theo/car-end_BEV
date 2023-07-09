@@ -77,9 +77,12 @@ roslaunch bev_lidar_cali nuscenes_rviz.launch
 roslaunch bev_lidar_cali nuscenes_toBEV.launch
 ```
 You can select mode by changing `flag` value in `nuscenes_toBEV.launch` file
-  - flag = 1: Bird of View demo
-  - flag = 2: ORB detection demo
-  - flag = 3: Join images demo
+  - flag = 1: Bird of View demo  
+    <img src="/images/bev demo.png" width="500" alt="bev_demo"/>
+  - flag = 2: ORB detection demo  
+    <img src="/images/orb_detection_demo.png" width="500" alt="orb_detection_demo"/>
+  - flag = 3: Join images demo  
+    <img src="/images/join_image_demo.png" width="500" alt="join_iamge_demo"/>
 
 ### 3. test get camera parameters:
 ```
@@ -92,3 +95,5 @@ You can select camera by editing input of `GetPoints` function in `test_read_jso
   - Camera back: `CAM_BACK`
   - Camera back right: `CAM_BACK_RIGHT`
   - Camera back left: `CAM_BACK_LEFT`
+
+<img src="/images/test_read_json.png" width="800" alt="test_read_json"/>
