@@ -92,12 +92,11 @@ void ParamProcess::GetCaliParam(std::string camera_name){
                             0.0, 0.0, 1.0; 
     }
 
-
-    std::cout<< "-----------------------------------------" << std::endl;
-    std::cout<< camera_name << "\n" << std::endl;
-    std::cout<<"translation: "<< "\n" << translation_matrix <<"\n" <<  std::endl;
-    std::cout<<"rotation: "<< "\n" << rotation_martix <<"\n" <<  std::endl;
-    std::cout<<"camera_intrinsic: "<< "\n" << intrinsic_matirx << "\n"<<std::endl;
+    // std::cout<< "-----------------------------------------" << std::endl;
+    // std::cout<< camera_name << "\n" << std::endl;
+    // std::cout<<"translation: "<< "\n" << translation_matrix <<"\n" <<  std::endl;
+    // std::cout<<"rotation: "<< "\n" << rotation_martix <<"\n" <<  std::endl;
+    // std::cout<<"camera_intrinsic: "<< "\n" << intrinsic_matirx << "\n"<<std::endl;
 
 }
 

@@ -8,19 +8,33 @@
 #include <opencv2/calib3d.hpp>
 #include <opencv2/objdetect.hpp>
 
-
 #include <iostream>
 #include <vector>
 #include <string>
 #include <queue>
 #include <thread>
 
+#include "bev_lidar_cali/param_process.hpp"
+
 namespace bevlidar {
 class ImageProcess{
     public:
+        cv::Point2f center;
+        double angle;                 
+        double scale;
+        cv::Mat R;
+        cv::Mat image_front_left_;
+        cv::Mat image_front_;
+        cv::Mat image_front_right_;
+        cv::Mat image_back_right_;
+        cv::Mat image_back_;
+        cv::Mat image_back_left_;
+
+    public:
         cv::Mat BirdEyeView(std::vector<cv::Mat> images);
-        cv::Mat PerspectiveTransform(cv::Mat image);
+        cv::Mat PerspectiveTransform(cv::Mat image, std::vector<cv::Point3f> points);
         cv::Mat JoinImageDirect(std::vector<cv::Mat> images);
+        cv::Mat JoinBEVImage();
         cv::Mat OrbDetect(std::vector<cv::Mat> images);
 };
 } // namespace bevlidar

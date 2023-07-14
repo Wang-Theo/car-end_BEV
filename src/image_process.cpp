@@ -45,7 +45,60 @@ cv::Mat ImageProcess::JoinImageDirect(std::vector<cv::Mat> images){
     return result_image;
 }
 
-cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image){
+cv::Mat ImageProcess::JoinBEVImage(){
+    cv::Mat result_image;
+    // get images' width and height
+    int w1 = image_front_left_.cols;    int h1 = image_front_left_.rows;
+	int w2 = image_front_.cols;         int h2 = image_front_.rows;
+    int w3 = image_front_right_.cols;   int h3 = image_front_right_.rows;
+    int w4 = image_back_right_.cols;    int h4 = image_back_right_.rows;
+	int w5 = image_back_.cols;          int h5 = image_back_.rows;
+    int w6 = image_back_left_.cols;     int h6 = image_back_left_.rows;
+
+    // rotate images
+    center.x = w1/2; center.y = h1/2; angle = 70; scale = 1;                  
+    R = cv::getRotationMatrix2D(center, angle, scale);
+    cv::warpAffine(image_front_left_, image_front_left_, R, image_front_left_.size());
+    
+    center.x = w3/2; center.y = h3/2; angle = -70; scale = 1;                  
+    R = cv::getRotationMatrix2D(center, angle, scale);
+    cv::warpAffine(image_front_right_, image_front_right_, R, image_front_right_.size());
+
+    center.x = w4/2; center.y = h4/2; angle = 250; scale = 1;                  
+    R = cv::getRotationMatrix2D(center, angle, scale);
+    cv::warpAffine(image_back_right_, image_back_right_, R, image_back_right_.size());
+
+    center.x = w5/2; center.y = h5/2; angle = 180; scale = 1;                  
+    R = cv::getRotationMatrix2D(center, angle, scale);
+    cv::warpAffine(image_back_, image_back_, R, image_back_.size());
+
+    center.x = w6/2; center.y = h6/2; angle = 110; scale = 1;                  
+    R = cv::getRotationMatrix2D(center, angle, scale);
+    cv::warpAffine(image_back_left_, image_back_left_, R, image_back_left_.size());
+    
+    // joint images
+	int width = w1 + w2 + w3; int height = std::max(h1+h6, std::max(h2+h5, h3+h4));
+	result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+	cv::Mat ROI_1 = result_image(cv::Rect(0,       0,  w1, h1));
+	cv::Mat ROI_2 = result_image(cv::Rect(w1,      0,  w2, h2));
+    cv::Mat ROI_3 = result_image(cv::Rect(w1 + w2, 0,  w3, h3));
+    cv::Mat ROI_4 = result_image(cv::Rect(w1 + w2, h3, w4, h4));
+    cv::Mat ROI_5 = result_image(cv::Rect(w1,      h2, w5, h5));
+    cv::Mat ROI_6 = result_image(cv::Rect(0,       h1, w6, h6));
+
+	image_front_left_.copyTo(ROI_1);
+	image_front_.copyTo(ROI_2);
+    image_front_right_.copyTo(ROI_3);
+	image_back_right_.copyTo(ROI_4);
+	image_back_.copyTo(ROI_5);
+    image_back_left_.copyTo(ROI_6);
+
+    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.jpg",result_image);
+    if(result_image.empty()) std::cout<<"\n======fail to joint image======"<<std::endl;
+    return result_image;
+}
+
+cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image, std::vector<cv::Point3f> points){
     std::vector<cv::Point2f> corners;// 4 points in original image
     std::vector<cv::Point2f> corners_trans;// 4 points in transformed image
 
@@ -68,7 +121,12 @@ cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image){
                 P4(1123.18, 900-180.12),
                 P1(597.83, 900-285.19),
                 P2(1018.11, 900-285.19);
-                
+    // cv::Point2f P1, P2, P3, P4;
+    // P3.x = points[0].x; P3.y = 900 - points[0].y;
+    // P4.x = points[1].x; P4.y = 900 - points[1].y;
+    // P1.x = points[2].x; P1.y = 900 - points[2].y;
+    // P2.x = points[3].x; P2.y = 900 - points[3].y;
+
     corners.push_back(P1);
     corners.push_back(P2);
     corners.push_back(P3);
@@ -103,23 +161,39 @@ cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image){
 cv::Mat ImageProcess::BirdEyeView(std::vector<cv::Mat> images){
 	cv::Mat result_image;
 
-    cv::Mat image_front_left_ = PerspectiveTransform(images[0]);
-    cv::Mat image_front_ = PerspectiveTransform(images[1]);
-    cv::Mat image_front_right_ = PerspectiveTransform(images[2]);
+    // directly choose points in camera coordinate
+    std::vector<cv::Point3f> real_points;
+    std::vector<cv::Point3f> points;
+    cv::Point3f P1(-5.f, -5.f, 20.f), P2(5.f, -5.f, 20.f), 
+                P3(-5.f, -5.f, 30.f), P4(5.f, -5.f, 30.f);
+    real_points.push_back(P1);
+    real_points.push_back(P2);
+    real_points.push_back(P3);
+    real_points.push_back(P4);
 
-    // joint images
-    int w1 = image_front_left_.cols; int h1 = image_front_left_.rows;
-	int w2 = image_front_.cols; int h2 = image_front_.rows;
-    int w3 = image_front_right_.cols; int h3 = image_front_right_.rows;
-	int width = w1 + w2 + w3; int height = std::max(h1, std::max(h2, h3));
-	result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
-	cv::Mat ROI_1 = result_image(cv::Rect(0, 0, w1, h1));
-	cv::Mat ROI_2 = result_image(cv::Rect(w1, 0, w2, h2));
-    cv::Mat ROI_3 = result_image(cv::Rect(w1 + w2, 0, w3, h3));
+    // transform images
+    ParamProcess processor;
+    
+    points = processor.GetPoints(real_points, "CAM_FRONT_LEFT");
+    image_front_left_ = PerspectiveTransform(images[0], points);
 
-	image_front_left_.copyTo(ROI_1);
-	image_front_.copyTo(ROI_2);
-    image_front_right_.copyTo(ROI_3);
+    points = processor.GetPoints(real_points, "CAM_FRONT");
+    image_front_ = PerspectiveTransform(images[1], points);
+  
+    points = processor.GetPoints(real_points, "CAM_FRONT_RIGHT");
+    image_front_right_ = PerspectiveTransform(images[2], points);
+
+    points = processor.GetPoints(real_points, "CAM_BACK_RIGHT");
+    image_back_right_ = PerspectiveTransform(images[3], points);
+
+    points = processor.GetPoints(real_points, "CAM_BACK");
+    image_back_ = PerspectiveTransform(images[4], points);
+
+    points = processor.GetPoints(real_points, "CAM_BACK_LEFT");
+    image_back_left_ = PerspectiveTransform(images[5], points);
+
+    // join images
+    result_image = JoinBEVImage();
 
     cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.jpg",result_image);
     if(result_image.empty()) std::cout<<"\n======fail to joint image======"<<std::endl;
