@@ -18,7 +18,13 @@
 namespace bevlidar {
 class ParamProcess{
     public:
+        Eigen::Matrix<double, 3, 1> translation_matrix;
+        Eigen::Matrix3d rotation_martix;
+        Eigen::Matrix3d intrinsic_matirx;
+
+    public:
         void ReadJsonTest(std::string camera_name);
+        void GetCaliParam(std::string camera_name);
         std::vector<cv::Point3f> GetPoints(std::vector<cv::Point3f> real_points, std::string camera_name);
 };
 } // namespace bevlidar
