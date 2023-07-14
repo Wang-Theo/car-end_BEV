@@ -56,15 +56,15 @@ cv::Mat ImageProcess::JoinBEVImage(){
     int w6 = image_back_left_.cols;     int h6 = image_back_left_.rows;
 
     // rotate images
-    center.x = w1/2; center.y = h1/2; angle = 70; scale = 1;                  
+    center.x = w1/2; center.y = h1/2; angle = 55; scale = 1;                  
     R = cv::getRotationMatrix2D(center, angle, scale);
-    cv::warpAffine(image_front_left_, image_front_left_, R, image_front_left_.size());
+    cv::warpAffine(image_front_left_, image_front_left_, R, image_front_left_.size(),);
     
-    center.x = w3/2; center.y = h3/2; angle = -70; scale = 1;                  
+    center.x = w3/2; center.y = h3/2; angle = -55; scale = 1;                  
     R = cv::getRotationMatrix2D(center, angle, scale);
     cv::warpAffine(image_front_right_, image_front_right_, R, image_front_right_.size());
 
-    center.x = w4/2; center.y = h4/2; angle = 250; scale = 1;                  
+    center.x = w4/2; center.y = h4/2; angle = -110; scale = 1;                  
     R = cv::getRotationMatrix2D(center, angle, scale);
     cv::warpAffine(image_back_right_, image_back_right_, R, image_back_right_.size());
 
@@ -77,14 +77,14 @@ cv::Mat ImageProcess::JoinBEVImage(){
     cv::warpAffine(image_back_left_, image_back_left_, R, image_back_left_.size());
     
     // joint images
-	int width = w1 + w2 + w3; int height = std::max(h1+h6, std::max(h2+h5, h3+h4));
+	int width = w1 + w2 + w3; int height = std::max(h5+h2+h1+h6, std::max(2*h2+2*h5, h5+h2+h3+h4));
 	result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
-	cv::Mat ROI_1 = result_image(cv::Rect(0,       0,  w1, h1));
+	cv::Mat ROI_1 = result_image(cv::Rect(0,       h2,  w1, h1));
 	cv::Mat ROI_2 = result_image(cv::Rect(w1,      0,  w2, h2));
-    cv::Mat ROI_3 = result_image(cv::Rect(w1 + w2, 0,  w3, h3));
-    cv::Mat ROI_4 = result_image(cv::Rect(w1 + w2, h3, w4, h4));
-    cv::Mat ROI_5 = result_image(cv::Rect(w1,      h2, w5, h5));
-    cv::Mat ROI_6 = result_image(cv::Rect(0,       h1, w6, h6));
+    cv::Mat ROI_3 = result_image(cv::Rect(w1 + w2, h2,  w3, h3));
+    cv::Mat ROI_4 = result_image(cv::Rect(w1 + w2, h2+h3, w4, h4));
+    cv::Mat ROI_5 = result_image(cv::Rect(w1,      h5+h2+h2, w5, h5));
+    cv::Mat ROI_6 = result_image(cv::Rect(0,       h2+h1, w6, h6));
 
 	image_front_left_.copyTo(ROI_1);
 	image_front_.copyTo(ROI_2);
@@ -109,18 +109,18 @@ cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image, std::vector<cv::Point3
     float ROI_WIDTH=1600;
     //************************//
 
-    // cv::Point2f P1(500.f, 600.f), P2(700.f, 600.f), 
-    //             P3(400.f, 900.f), P4(800.f, 900.f);
+    cv::Point2f P1(700.f, 600.f), P2(900.f, 600.f), 
+                P3(600.f, 900.f), P4(1000.f, 900.f);
 
     // cv::Point2f P3(492.76, 900-75.05),
     //             P4(1123.18, 900-75.05),
     //             P1(597.83, 900-285.19),
     //             P2(1018.11, 900-285.19);
 
-    cv::Point2f P3(492.76, 900-180.12),
-                P4(1123.18, 900-180.12),
-                P1(597.83, 900-285.19),
-                P2(1018.11, 900-285.19);
+    // cv::Point2f P3(492.76, 900-180.12),
+    //             P4(1123.18, 900-180.12),
+    //             P1(597.83, 900-285.19),
+    //             P2(1018.11, 900-285.19);
     // cv::Point2f P1, P2, P3, P4;
     // P3.x = points[0].x; P3.y = 900 - points[0].y;
     // P4.x = points[1].x; P4.y = 900 - points[1].y;
@@ -134,7 +134,7 @@ cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image, std::vector<cv::Point3
 
     // set width of perspective image
     float IPM_WIDTH=1600;
-    float N=5;
+    float N=8;
     // make widith of perspcetive image as N * width of vehicle front part
     float sacale=(IPM_WIDTH/N)/ROI_WIDTH;
     float IPM_HEIGHT=ROI_HEIGHT*sacale;
@@ -164,8 +164,10 @@ cv::Mat ImageProcess::BirdEyeView(std::vector<cv::Mat> images){
     // directly choose points in camera coordinate
     std::vector<cv::Point3f> real_points;
     std::vector<cv::Point3f> points;
-    cv::Point3f P1(-5.f, -5.f, 20.f), P2(5.f, -5.f, 20.f), 
-                P3(-5.f, -5.f, 30.f), P4(5.f, -5.f, 30.f);
+    cv::Point3f P1(-3.f, -5.f, 20.f), P2(3.f, -5.f, 20.f), 
+                P3(-3.f, -5.f, 30.f), P4(3.f, -5.f, 30.f);
+    // cv::Point3f P1(-5.f, -5.f, 20.f), P2(5.f, -5.f, 20.f), 
+    //             P3(-5.f, -5.f, 30.f), P4(5.f, -5.f, 30.f);
     real_points.push_back(P1);
     real_points.push_back(P2);
     real_points.push_back(P3);
