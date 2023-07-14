@@ -109,11 +109,12 @@ std::vector<cv::Point3f> ParamProcess::GetPoints(std::vector<cv::Point3f> real_p
         Eigen::Matrix<double, 3, 1> piont_input;
         piont_input << real_points[i].x, real_points[i].y, real_points[i].z;
 
-        Eigen::Matrix<double, 3, 1> piont_at_camera_coordinate;
-        piont_at_camera_coordinate = rotation_martix * piont_input + translation_matrix;
-
+        // Eigen::Matrix<double, 3, 1> piont_at_camera_coordinate;
+        // piont_at_camera_coordinate = rotation_martix * piont_input + translation_matrix;
+        
+        // only use intrinsic (directly choose points in camera coordinate)
         Eigen::Matrix<double, 3, 1> piont_at_image;
-        piont_at_image = (1/real_points[i].z) * intrinsic_matirx * piont_at_camera_coordinate;
+        piont_at_image = (1/real_points[i].z) * intrinsic_matirx * piont_input;
 
         cv::Point3f img_point;
         img_point.x = piont_at_image(0,0);

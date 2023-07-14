@@ -52,21 +52,23 @@ cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image){
     //**parameters of ROI area cut from camera images**//
     float roi_x0=0;
     float roi_y0=0;
-    float ROI_HEIGHT=8000;
+    float ROI_HEIGHT=5000;
     float ROI_WIDTH=1600;
     //************************//
 
-    cv::Point2f P1(500.f, 600.f), P2(700.f, 600.f), 
-                P3(400.f, 900.f), P4(800.f, 900.f);
+    // cv::Point2f P1(500.f, 600.f), P2(700.f, 600.f), 
+    //             P3(400.f, 900.f), P4(800.f, 900.f);
 
-    // cv::Point2f P1(848.79, 962.41), P2(929.84, 915.20), 
-    //             P3(506.84, 1196.05), P4(566.79, 1149.64);
+    // cv::Point2f P3(492.76, 900-75.05),
+    //             P4(1123.18, 900-75.05),
+    //             P1(597.83, 900-285.19),
+    //             P2(1018.11, 900-285.19);
 
-    // cv::Point2f P1(495.33, 177.54),
-    //             P2(495.33, 492.76),
-    //             P3(495.33, 1438.39),
-    //             P4(495.33, 1123.18);
-
+    cv::Point2f P3(492.76, 900-180.12),
+                P4(1123.18, 900-180.12),
+                P1(597.83, 900-285.19),
+                P2(1018.11, 900-285.19);
+                
     corners.push_back(P1);
     corners.push_back(P2);
     corners.push_back(P3);
@@ -80,7 +82,7 @@ cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image){
     float IPM_HEIGHT=ROI_HEIGHT*sacale;
 
     // initialize 
-    cv::Mat dst=cv::Mat::zeros(IPM_HEIGHT,IPM_WIDTH,image.type());
+    cv::Mat dst=cv::Mat::zeros(IPM_HEIGHT+100,IPM_WIDTH,image.type());
 
     corners_trans.push_back(cv::Point2f(IPM_WIDTH/2-IPM_WIDTH/(2*N),0));  //P2
     corners_trans.push_back(cv::Point2f(IPM_WIDTH/2+IPM_WIDTH/(2*N),0));  //P3
