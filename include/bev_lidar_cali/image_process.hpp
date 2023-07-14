@@ -31,6 +31,7 @@ class ImageProcess{
         cv::Mat PerspectiveTransform(cv::Mat image, std::vector<cv::Point3f> points);
         cv::Mat JoinImageDirect(std::vector<cv::Mat> images);
         cv::Mat RotateImage(cv::Mat image, int w, int h, double angle, double scale);
+        cv::Mat CutImage(cv::Mat image);
         cv::Mat JoinBEVImage();
         cv::Mat OrbDetect(std::vector<cv::Mat> images);
 };

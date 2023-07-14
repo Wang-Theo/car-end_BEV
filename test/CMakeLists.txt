@@ -24,3 +24,12 @@ target_link_libraries(test_get_points
    ${CERES_LIBRARIES}
    ${JSON_INC_PATH}
 )
+
+add_executable(test_cut_img test_cut_img.cpp)
+target_link_libraries(test_cut_img
+    bev_lidar_cali
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBS}
+   ${CERES_LIBRARIES}
+   ${JSON_INC_PATH}
+)

@@ -45,6 +45,17 @@ cv::Mat ImageProcess::JoinImageDirect(std::vector<cv::Mat> images){
     return result_image;
 }
 
+cv::Mat ImageProcess::CutImage(cv::Mat image){
+    // cut image
+    cv::GaussianBlur(image, image, cv::Size(5,5), 0);
+    cv::cvtColor(image,image, cv::COLOR_BGR2GRAY);
+    cv::threshold(image, image, 1, 255, cv::THRESH_BINARY);
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(image, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+    std::cout << contours[0] << std::endl;
+    return image;
+}
+
 cv::Mat ImageProcess::RotateImage(cv::Mat image, int w, int h, double angle, double scale){
     // rotate images
     cv::Point2f center;
@@ -63,7 +74,7 @@ cv::Mat ImageProcess::RotateImage(cv::Mat image, int w, int h, double angle, dou
 cv::Mat ImageProcess::JoinBEVImage(){
     cv::Mat result_image;
 
-    // // rotate images
+    // rotate images
     image_front_left_ = RotateImage(image_front_left_, image_front_left_.cols, image_front_left_.rows, 55, 1);
     image_front_right_ = RotateImage(image_front_right_, image_front_right_.cols, image_front_right_.rows, -55, 1);
     cv::rotate(image_back_, image_back_, cv::ROTATE_180);
@@ -71,7 +82,7 @@ cv::Mat ImageProcess::JoinBEVImage(){
     cv::rotate(image_back_left_, image_back_left_, cv::ROTATE_180);
     image_back_right_ = RotateImage(image_back_right_, image_back_right_.cols, image_back_right_.rows, 55, 1);
     image_back_left_ = RotateImage(image_back_left_, image_back_left_.cols, image_back_left_.rows, -55, 1);
-    
+
     // get images' width and height again
     int w1 = image_front_left_.cols;    int h1 = image_front_left_.rows;
 	int w2 = image_front_.cols;         int h2 = image_front_.rows;
@@ -155,9 +166,9 @@ cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image, std::vector<cv::Point3
     auto warpMatrix_src2ipm = cv::findHomography(corners, corners_trans, cv::RANSAC);
     cv::warpPerspective(image, dst, warpMatrix_src2ipm, dst.size());
 
-    // mark points
-    for(int i=0;i<4;i++)
-        circle(dst,corners_trans[i],5,cv::Scalar(0,255,255),4);
+    // // mark points
+    // for(int i=0;i<4;i++)
+    //     circle(dst,corners_trans[i],5,cv::Scalar(0,255,255),4);
     return dst;
 }
 
