@@ -45,37 +45,40 @@ cv::Mat ImageProcess::JoinImageDirect(std::vector<cv::Mat> images){
     return result_image;
 }
 
+cv::Mat ImageProcess::RotateImage(cv::Mat image, int w, int h, double angle, double scale){
+    // rotate images
+    cv::Point2f center;
+    center.x = w/2; center.y = h/2;
+    int bound_w = (h * fabs(sin(angle * CV_PI / 180)) + w * fabs(cos(angle * CV_PI / 180)));
+    int bound_h = (h * fabs(cos(angle * CV_PI / 180)) + w * fabs(sin(angle * CV_PI / 180)));                  
+    cv::Mat R = cv::getRotationMatrix2D(center, angle, scale);
+
+    R.at<double>(0, 2) += (bound_w - w) / 2;
+    R.at<double>(1, 2) += (bound_h - h) / 2;
+
+    cv::warpAffine(image, image, R, cv::Size(bound_h,bound_w));
+    return image;
+}
+
 cv::Mat ImageProcess::JoinBEVImage(){
     cv::Mat result_image;
-    // get images' width and height
+
+    // // rotate images
+    image_front_left_ = RotateImage(image_front_left_, image_front_left_.cols, image_front_left_.rows, 55, 1);
+    image_front_right_ = RotateImage(image_front_right_, image_front_right_.cols, image_front_right_.rows, -55, 1);
+    cv::rotate(image_back_, image_back_, cv::ROTATE_180);
+    cv::rotate(image_back_right_, image_back_right_, cv::ROTATE_180);
+    cv::rotate(image_back_left_, image_back_left_, cv::ROTATE_180);
+    image_back_right_ = RotateImage(image_back_right_, image_back_right_.cols, image_back_right_.rows, 55, 1);
+    image_back_left_ = RotateImage(image_back_left_, image_back_left_.cols, image_back_left_.rows, -55, 1);
+    
+    // get images' width and height again
     int w1 = image_front_left_.cols;    int h1 = image_front_left_.rows;
 	int w2 = image_front_.cols;         int h2 = image_front_.rows;
     int w3 = image_front_right_.cols;   int h3 = image_front_right_.rows;
     int w4 = image_back_right_.cols;    int h4 = image_back_right_.rows;
 	int w5 = image_back_.cols;          int h5 = image_back_.rows;
     int w6 = image_back_left_.cols;     int h6 = image_back_left_.rows;
-
-    // rotate images
-    center.x = w1/2; center.y = h1/2; angle = 55; scale = 1;                  
-    R = cv::getRotationMatrix2D(center, angle, scale);
-    cv::warpAffine(image_front_left_, image_front_left_, R, image_front_left_.size(),);
-    
-    center.x = w3/2; center.y = h3/2; angle = -55; scale = 1;                  
-    R = cv::getRotationMatrix2D(center, angle, scale);
-    cv::warpAffine(image_front_right_, image_front_right_, R, image_front_right_.size());
-
-    center.x = w4/2; center.y = h4/2; angle = -110; scale = 1;                  
-    R = cv::getRotationMatrix2D(center, angle, scale);
-    cv::warpAffine(image_back_right_, image_back_right_, R, image_back_right_.size());
-
-    center.x = w5/2; center.y = h5/2; angle = 180; scale = 1;                  
-    R = cv::getRotationMatrix2D(center, angle, scale);
-    cv::warpAffine(image_back_, image_back_, R, image_back_.size());
-
-    center.x = w6/2; center.y = h6/2; angle = 110; scale = 1;                  
-    R = cv::getRotationMatrix2D(center, angle, scale);
-    cv::warpAffine(image_back_left_, image_back_left_, R, image_back_left_.size());
-    
     // joint images
 	int width = w1 + w2 + w3; int height = std::max(h5+h2+h1+h6, std::max(2*h2+2*h5, h5+h2+h3+h4));
 	result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
@@ -83,7 +86,7 @@ cv::Mat ImageProcess::JoinBEVImage(){
 	cv::Mat ROI_2 = result_image(cv::Rect(w1,      0,  w2, h2));
     cv::Mat ROI_3 = result_image(cv::Rect(w1 + w2, h2,  w3, h3));
     cv::Mat ROI_4 = result_image(cv::Rect(w1 + w2, h2+h3, w4, h4));
-    cv::Mat ROI_5 = result_image(cv::Rect(w1,      h5+h2+h2, w5, h5));
+    cv::Mat ROI_5 = result_image(cv::Rect(w1,      h3+h4+h2, w5, h5));
     cv::Mat ROI_6 = result_image(cv::Rect(0,       h2+h1, w6, h6));
 
 	image_front_left_.copyTo(ROI_1);

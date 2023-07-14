@@ -19,10 +19,6 @@
 namespace bevlidar {
 class ImageProcess{
     public:
-        cv::Point2f center;
-        double angle;                 
-        double scale;
-        cv::Mat R;
         cv::Mat image_front_left_;
         cv::Mat image_front_;
         cv::Mat image_front_right_;
@@ -34,6 +30,7 @@ class ImageProcess{
         cv::Mat BirdEyeView(std::vector<cv::Mat> images);
         cv::Mat PerspectiveTransform(cv::Mat image, std::vector<cv::Point3f> points);
         cv::Mat JoinImageDirect(std::vector<cv::Mat> images);
+        cv::Mat RotateImage(cv::Mat image, int w, int h, double angle, double scale);
         cv::Mat JoinBEVImage();
         cv::Mat OrbDetect(std::vector<cv::Mat> images);
 };
