@@ -45,7 +45,7 @@ cv::Mat ImageProcess::JoinImageDirect(std::vector<cv::Mat> images){
     return result_image;
 }
 
-cv::Mat ImageProcess::CutImage(cv::Mat image){
+cv::Mat ImageProcess::CutImageMask(cv::Mat image){
     // cut image
     cv::Mat mask;
     cv::GaussianBlur(image, mask, cv::Size(5,5), 0);
@@ -119,23 +119,37 @@ cv::Mat ImageProcess::JoinBEVImage(){
     int w6 = image_back_left_.cols;     int h6 = image_back_left_.rows;
 
     cv::Mat mask_front_left = CutImageMask(image_front_left_);
+    cv::Mat mask_front = CutImageMask(image_front_);
+    cv::Mat mask_front_right = CutImageMask(image_front_right_);
+    cv::Mat mask_back_right = CutImageMask(image_back_right_);
+    cv::Mat mask_back = CutImageMask(image_back_);
+    cv::Mat mask_back_left = CutImageMask(image_back_left_);
 
     // joint images
-	int width = w1 + w2 + w3; int height = std::max(h5+h2+h1+h6, std::max(2*h2+2*h5, h5+h2+h3+h4));
+	int width = 3800; int height = 2800;
 	result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
-	cv::Mat ROI_1 = result_image(cv::Rect(500,    h2-500,  w1, h1));
-	cv::Mat ROI_2 = result_image(cv::Rect(w1,      0,  w2, h2));
-    cv::Mat ROI_3 = result_image(cv::Rect(w1 + w2, h2,  w3, h3));
-    cv::Mat ROI_4 = result_image(cv::Rect(w1 + w2, h2+h3, w4, h4));
-    cv::Mat ROI_5 = result_image(cv::Rect(w1,      h3+h4+h2, w5, h5));
-    cv::Mat ROI_6 = result_image(cv::Rect(0,       h2+h1, w6, h6));
+	cv::Mat ROI_1 = result_image(cv::Rect(0,                0, w1, h1));
+	cv::Mat ROI_2 = result_image(cv::Rect(800,              20,  w2, h2));
+    cv::Mat ROI_3 = result_image(cv::Rect(800+1600-319-398, 0, w3, h3));
+    cv::Mat ROI_4 = result_image(cv::Rect(800+1600-318-394, 1303-390, w4, h4));
+    cv::Mat ROI_5 = result_image(cv::Rect(800,              1303+1711-725-390-20, w5, h5));
+    cv::Mat ROI_6 = result_image(cv::Rect(0,                1303-392, w6, h6));
 
-    image_front_.copyTo(ROI_2);
-	image_front_left_.copyTo(ROI_1, mask_front_left);
-    image_front_right_.copyTo(ROI_3);
-	image_back_right_.copyTo(ROI_4);
-	image_back_.copyTo(ROI_5);
-    image_back_left_.copyTo(ROI_6);
+	// int width = w1 + w2 + w3; int height = std::max(h5+h2+h1+h6, std::max(2*h2+2*h5, h5+h2+h3+h4));
+	// result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+	// cv::Mat ROI_1 = result_image(cv::Rect(900,    h2-720,  w1, h1));
+	// cv::Mat ROI_2 = result_image(cv::Rect(w1,      10,  w2, h2));
+    // cv::Mat ROI_3 = result_image(cv::Rect(w1 + w2-700, h2-720,  w3, h3));
+    // cv::Mat ROI_4 = result_image(cv::Rect(w1 + w2, h2+h3, w4, h4));
+    // cv::Mat ROI_5 = result_image(cv::Rect(w1,      h3+h4+h2, w5, h5));
+    // cv::Mat ROI_6 = result_image(cv::Rect(0,       h2+h1, w6, h6));
+
+    image_front_left_.copyTo(ROI_1, mask_front_left);
+    image_front_right_.copyTo(ROI_3, mask_front_right);
+    image_front_.copyTo(ROI_2, mask_front);
+	image_back_right_.copyTo(ROI_4, mask_back_right);
+    image_back_left_.copyTo(ROI_6, mask_back_left);
+    image_back_.copyTo(ROI_5, mask_back);
 
     cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.jpg",result_image);
     if(result_image.empty()) std::cout<<"\n======fail to joint image======"<<std::endl;
