@@ -47,13 +47,40 @@ cv::Mat ImageProcess::JoinImageDirect(std::vector<cv::Mat> images){
 
 cv::Mat ImageProcess::CutImage(cv::Mat image){
     // cut image
-    cv::GaussianBlur(image, image, cv::Size(5,5), 0);
-    cv::cvtColor(image,image, cv::COLOR_BGR2GRAY);
-    cv::threshold(image, image, 1, 255, cv::THRESH_BINARY);
+    cv::Mat mask;
+    cv::GaussianBlur(image, mask, cv::Size(5,5), 0);
+    cv::cvtColor(mask, mask, cv::COLOR_BGR2GRAY);
+    cv::threshold(mask, mask, 1, 255, cv::THRESH_BINARY);
+
+    // Shi-Tomasi corners detection
+    // std::vector<cv::Point2f> corners;   // corners's postion
+	// int maxcorners = 4;                 // maximal corners' number to be detected
+	// double qualityLevel = 0.1;          // minimal eigenvalue
+	// double minDistance = 600;	        // minimal distance between corners
+	// int blockSize = 20;
+	// double  k = 0.04;                   // weight coefficient
+ 
+	// cv::goodFeaturesToTrack(mask, corners, maxcorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
+ 
+	// std::cout << "Corners number: " << corners.size() << std::endl; // output info
+
+	// for (unsigned i = 0; i < corners.size(); i++)
+	// {
+	// 	circle(mask, corners[i], 10, cv::Scalar(0,255,255),4);  // draw corners
+	// 	std::cout << "Corner location: " << corners[i] << std::endl;     // output corners' position
+	// }
+
+    // detect outline
     std::vector<std::vector<cv::Point>> contours;
-    cv::findContours(image, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-    std::cout << contours[0] << std::endl;
-    return image;
+    std::vector<cv::Vec4i> hierarchy;
+    cv::findContours(mask, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    int index = 0;
+    // for (; index >= 0; index = hierarchy[index][0])
+	// {
+    //     cv::drawContours(image, contours, index, (0,0,255), 2,8,hierarchy);
+	// }
+
+    return mask;
 }
 
 cv::Mat ImageProcess::RotateImage(cv::Mat image, int w, int h, double angle, double scale){
@@ -67,7 +94,7 @@ cv::Mat ImageProcess::RotateImage(cv::Mat image, int w, int h, double angle, dou
     R.at<double>(0, 2) += (bound_w - w) / 2;
     R.at<double>(1, 2) += (bound_h - h) / 2;
 
-    cv::warpAffine(image, image, R, cv::Size(bound_h,bound_w));
+    cv::warpAffine(image, image, R, cv::Size(bound_h,bound_w+200));
     return image;
 }
 
@@ -90,18 +117,21 @@ cv::Mat ImageProcess::JoinBEVImage(){
     int w4 = image_back_right_.cols;    int h4 = image_back_right_.rows;
 	int w5 = image_back_.cols;          int h5 = image_back_.rows;
     int w6 = image_back_left_.cols;     int h6 = image_back_left_.rows;
+
+    cv::Mat mask_front_left = CutImageMask(image_front_left_);
+
     // joint images
 	int width = w1 + w2 + w3; int height = std::max(h5+h2+h1+h6, std::max(2*h2+2*h5, h5+h2+h3+h4));
 	result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
-	cv::Mat ROI_1 = result_image(cv::Rect(0,       h2,  w1, h1));
+	cv::Mat ROI_1 = result_image(cv::Rect(500,    h2-500,  w1, h1));
 	cv::Mat ROI_2 = result_image(cv::Rect(w1,      0,  w2, h2));
     cv::Mat ROI_3 = result_image(cv::Rect(w1 + w2, h2,  w3, h3));
     cv::Mat ROI_4 = result_image(cv::Rect(w1 + w2, h2+h3, w4, h4));
     cv::Mat ROI_5 = result_image(cv::Rect(w1,      h3+h4+h2, w5, h5));
     cv::Mat ROI_6 = result_image(cv::Rect(0,       h2+h1, w6, h6));
 
-	image_front_left_.copyTo(ROI_1);
-	image_front_.copyTo(ROI_2);
+    image_front_.copyTo(ROI_2);
+	image_front_left_.copyTo(ROI_1, mask_front_left);
     image_front_right_.copyTo(ROI_3);
 	image_back_right_.copyTo(ROI_4);
 	image_back_.copyTo(ROI_5);
