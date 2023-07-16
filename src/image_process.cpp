@@ -45,6 +45,43 @@ cv::Mat ImageProcess::JoinImageDirect(std::vector<cv::Mat> images){
     return result_image;
 }
 
+cv::Mat ImageProcess::FuseImage(cv::Mat image1, cv::Mat image2){
+    cv::Mat output_image(image1.cols, image1.rows, CV_8UC3, cv::Scalar(0, 0, 0));
+
+    // for(int i =0; i<output_image.cols; i++){
+    //     for(int j=0; j<output_image.rows; j++){
+
+    //         if(   (image1.at<cv::Vec3b>(i, j)[0] == 0
+    //               && image1.at<cv::Vec3b>(i, j)[1] == 0
+    //               && image1.at<cv::Vec3b>(i, j)[2] == 0)
+    //             &&(image2.at<cv::Vec3b>(i, j)[0] != 0
+    //               && image2.at<cv::Vec3b>(i, j)[1] != 0
+    //               && image2.at<cv::Vec3b>(i, j)[2] != 0)){
+    //                 output_image.at<cv::Vec3b>(i, j)[0] = image2.at<cv::Vec3b>(i, j)[0];
+    //                 output_image.at<cv::Vec3b>(i, j)[1] = image2.at<cv::Vec3b>(i, j)[1];
+    //                 output_image.at<cv::Vec3b>(i, j)[2] = image2.at<cv::Vec3b>(i, j)[2];
+    //             }
+    //         else if((image2.at<cv::Vec3b>(i, j)[0] == 0
+    //               && image2.at<cv::Vec3b>(i, j)[1] == 0
+    //               && image2.at<cv::Vec3b>(i, j)[2] == 0)
+    //             &&(image1.at<cv::Vec3b>(i, j)[0] != 0
+    //               && image1.at<cv::Vec3b>(i, j)[1] != 0
+    //               && image1.at<cv::Vec3b>(i, j)[2] != 0)){
+    //                 output_image.at<cv::Vec3b>(i, j)[0] = image1.at<cv::Vec3b>(i, j)[0];
+    //                 output_image.at<cv::Vec3b>(i, j)[1] = image1.at<cv::Vec3b>(i, j)[1];
+    //                 output_image.at<cv::Vec3b>(i, j)[2] = image1.at<cv::Vec3b>(i, j)[2];
+    //             }
+    //         else{
+    //                 output_image.at<cv::Vec3b>(i, j)[0] = (image1.at<cv::Vec3b>(i, j)[0] + image2.at<cv::Vec3b>(i, j)[0])/2;
+    //                 output_image.at<cv::Vec3b>(i, j)[1] = (image1.at<cv::Vec3b>(i, j)[1] + image2.at<cv::Vec3b>(i, j)[1])/2;
+    //                 output_image.at<cv::Vec3b>(i, j)[2] = (image1.at<cv::Vec3b>(i, j)[2] + image2.at<cv::Vec3b>(i, j)[2])/2;
+    //         }
+    //     }
+    // }
+    cv::addWeighted(image1, 0.5, image2, 0.5, 0, output_image);
+    return output_image;
+}
+
 cv::Mat ImageProcess::CutImageMask(cv::Mat image){
     // cut image
     cv::Mat mask;
@@ -53,23 +90,23 @@ cv::Mat ImageProcess::CutImageMask(cv::Mat image){
     cv::threshold(mask, mask, 1, 255, cv::THRESH_BINARY);
 
     // Shi-Tomasi corners detection
-    cv::Mat mask_with_corner = mask.clone();
-    std::vector<cv::Point2f> corners;   // corners's postion
-	int maxcorners = 4;                 // maximal corners' number to be detected
-	double qualityLevel = 0.1;          // minimal eigenvalue
-	double minDistance = 600;	        // minimal distance between corners
-	int blockSize = 20;
-	double  k = 0.04;                   // weight coefficient
+    // cv::Mat mask_with_corner = mask.clone();
+    // std::vector<cv::Point2f> corners;   // corners's postion
+	// int maxcorners = 4;                 // maximal corners' number to be detected
+	// double qualityLevel = 0.1;          // minimal eigenvalue
+	// double minDistance = 600;	        // minimal distance between corners
+	// int blockSize = 20;
+	// double  k = 0.04;                   // weight coefficient
  
-	cv::goodFeaturesToTrack(mask_with_corner, corners, maxcorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
+	// cv::goodFeaturesToTrack(mask_with_corner, corners, maxcorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
  
-	std::cout << "Corners number: " << corners.size() << std::endl; // output info
+	// std::cout << "Corners number: " << corners.size() << std::endl; // output info
 
-	for (unsigned i = 0; i < corners.size(); i++)
-	{
-		circle(mask_with_corner, corners[i], 10, cv::Scalar(0,255,255),4);  // draw corners
-		std::cout << "Corner location: " << corners[i] << std::endl;     // output corners' position
-	}
+	// for (unsigned i = 0; i < corners.size(); i++)
+	// {
+	// 	circle(mask_with_corner, corners[i], 10, cv::Scalar(0,255,255),4);  // draw corners
+	// 	std::cout << "Corner location: " << corners[i] << std::endl;     // output corners' position
+	// }
 
     // detect outline
     std::vector<std::vector<cv::Point>> contours;
@@ -127,23 +164,36 @@ cv::Mat ImageProcess::JoinBEVImage(){
     cv::Mat mask_back_left = CutImageMask(image_back_left_);
     
     // save image to test 
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front.jpg",image_front_);
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_left.jpg",image_front_left_);
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_right.jpg",image_front_right_);
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back.jpg",image_back_);
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_left.jpg",image_back_left_);
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_right.jpg",image_back_right_);
+    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front.jpg",image_front_);
+    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_left.jpg",image_front_left_);
+    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_right.jpg",image_front_right_);
+    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back.jpg",image_back_);
+    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_left.jpg",image_back_left_);
+    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_right.jpg",image_back_right_);
 
     // joint images
 	int width = 3800; int height = 2800;
-	result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+    result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+	// cv::Mat result_image_1 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+	// cv::Mat ROI_1 = result_image_1(cv::Rect(0,                    0, w1, h1));
+    // cv::Mat result_image_2 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+	// cv::Mat ROI_2 = result_image_2(cv::Rect(805,                  685-620,  w2, h2));
+    // cv::Mat result_image_3 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+    // cv::Mat ROI_3 = result_image_3(cv::Rect(805+1202-319,         0, w3, h3));
+    // cv::Mat result_image_4 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+    // cv::Mat ROI_4 = result_image_4(cv::Rect(805+1202-319+770-507, 1339-414, w4, h4));
+    // cv::Mat result_image_5 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+    // cv::Mat ROI_5 = result_image_5(cv::Rect(20+1002-581,          1303-413+1162-107, w5, h5));
+    // cv::Mat result_image_6 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+    // cv::Mat ROI_6 = result_image_6(cv::Rect(20,                   1303-413, w6, h6));
+
 	cv::Mat ROI_1 = result_image(cv::Rect(0,                    0, w1, h1));
 	cv::Mat ROI_2 = result_image(cv::Rect(805,                  685-620,  w2, h2));
     cv::Mat ROI_3 = result_image(cv::Rect(805+1202-319,         0, w3, h3));
     cv::Mat ROI_4 = result_image(cv::Rect(805+1202-319+770-507, 1339-414, w4, h4));
     cv::Mat ROI_5 = result_image(cv::Rect(20+1002-581,          1303-413+1162-107, w5, h5));
     cv::Mat ROI_6 = result_image(cv::Rect(20,                   1303-413, w6, h6));
-    cv::Mat ROI_7 = result_image(cv::Rect(1205,                 685, 802, 1432-65));
+    
 	// int width = w1 + w2 + w3; int height = std::max(h5+h2+h1+h6, std::max(2*h2+2*h5, h5+h2+h3+h4));
 	// result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
 	// cv::Mat ROI_1 = result_image(cv::Rect(900,    h2-720,  w1, h1));
@@ -160,6 +210,10 @@ cv::Mat ImageProcess::JoinBEVImage(){
     image_back_left_.copyTo(ROI_6, mask_back_left);
     image_back_.copyTo(ROI_5, mask_back);
 
+    // result_image = FuseImage(FuseImage(FuseImage(FuseImage(FuseImage(result_image_1, result_image_2), result_image_3), result_image_4), result_image_5), result_image_6);
+
+    // add vehicle picture in middle
+    cv::Mat ROI_7 = result_image(cv::Rect(1205,                 685, 802, 1432-65));
     cv::Mat vehicle_picture = cv::imread("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/vehicle_picture.jpeg");
     cv::resize(vehicle_picture, vehicle_picture, cv::Size(802,1432-65));
     vehicle_picture.copyTo(ROI_7);
