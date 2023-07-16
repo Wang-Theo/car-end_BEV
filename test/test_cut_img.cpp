@@ -8,7 +8,7 @@ int main(int argc, char **argv){
     img = processor.CutImageMask(img);
     std::cout << "image width: " << img.cols << std::endl;
     std::cout << "image height: " << img.rows << std::endl;
-    // cv::resize(img,img,cv::Size(1600,1000));
+    cv::resize(img,img,cv::Size(1600,1000));
     cv::cvtColor(img,img,cv::COLOR_BGR2BGRA);
     cv::imshow("cut_img", img);
 	cv::waitKey(0);
