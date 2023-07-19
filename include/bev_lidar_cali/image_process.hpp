@@ -25,6 +25,7 @@ class ImageProcess{
         cv::Mat image_back_right_;
         cv::Mat image_back_;
         cv::Mat image_back_left_;
+        double ratio_image_back;
 
     public:
         cv::Mat BirdEyeView(std::vector<cv::Mat> images);
