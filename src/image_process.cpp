@@ -90,23 +90,23 @@ cv::Mat ImageProcess::CutImageMask(cv::Mat image){
     cv::threshold(mask, mask, 1, 255, cv::THRESH_BINARY);
 
     // Shi-Tomasi corners detection
-    // cv::Mat mask_with_corner = mask.clone();
-    // std::vector<cv::Point2f> corners;   // corners's postion
-	// int maxcorners = 4;                 // maximal corners' number to be detected
-	// double qualityLevel = 0.1;          // minimal eigenvalue
-	// double minDistance = 600;	        // minimal distance between corners
-	// int blockSize = 25;
-	// double  k = 0.04;                   // weight coefficient
+    cv::Mat mask_with_corner = mask.clone();
+    std::vector<cv::Point2f> corners;   // corners's postion
+	int maxcorners = 6;                 // maximal corners' number to be detected
+	double qualityLevel = 0.1;          // minimal eigenvalue
+	double minDistance = 400;	        // minimal distance between corners
+	int blockSize = 50;
+	double  k = 0.04;                   // weight coefficient
  
-	// cv::goodFeaturesToTrack(mask_with_corner, corners, maxcorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
+	cv::goodFeaturesToTrack(mask_with_corner, corners, maxcorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
  
-	// std::cout << "Corners number: " << corners.size() << std::endl; // output info
+	std::cout << "Corners number: " << corners.size() << std::endl; // output info
 
-	// for (unsigned i = 0; i < corners.size(); i++)
-	// {
-	// 	circle(mask_with_corner, corners[i], 10, cv::Scalar(0,255,255),4);  // draw corners
-	// 	std::cout << "Corner location: " << corners[i] << std::endl;     // output corners' position
-	// }
+	for (unsigned i = 0; i < corners.size(); i++)
+	{
+		circle(mask_with_corner, corners[i], 10, cv::Scalar(0,255,255),4);  // draw corners
+		std::cout << "Corner location: " << corners[i] << std::endl;     // output corners' position
+	}
 
     // detect outline
     // std::vector<std::vector<cv::Point>> contours;
@@ -118,7 +118,7 @@ cv::Mat ImageProcess::CutImageMask(cv::Mat image){
     //     cv::drawContours(image, contours, index, (0,0,255), 2,8,hierarchy);
 	// }
 
-    return mask;
+    return mask_with_corner;
 }
 
 cv::Mat ImageProcess::RotateImage(cv::Mat image, int w, int h, double angle, double scale){
@@ -142,7 +142,7 @@ cv::Mat ImageProcess::JoinBEVImage(){
     // rotate images
     image_front_left_ = RotateImage(image_front_left_, image_front_left_.cols, image_front_left_.rows, 55, 1);
     image_front_right_ = RotateImage(image_front_right_, image_front_right_.cols, image_front_right_.rows, -55, 1);
-    cv::rotate(image_back_, image_back_, cv::ROTATE_180);
+    // cv::rotate(image_back_, image_back_, cv::ROTATE_180);
     cv::rotate(image_back_right_, image_back_right_, cv::ROTATE_180);
     cv::rotate(image_back_left_, image_back_left_, cv::ROTATE_180);
     image_back_right_ = RotateImage(image_back_right_, image_back_right_.cols, image_back_right_.rows, 70, 1);
@@ -153,14 +153,14 @@ cv::Mat ImageProcess::JoinBEVImage(){
 	int w2 = image_front_.cols;         int h2 = image_front_.rows;
     int w3 = image_front_right_.cols;   int h3 = image_front_right_.rows;
     int w4 = image_back_right_.cols;    int h4 = image_back_right_.rows;
-	int w5 = image_back_.cols;          int h5 = image_back_.rows;
+	// int w5 = image_back_.cols;          int h5 = image_back_.rows;
     int w6 = image_back_left_.cols;     int h6 = image_back_left_.rows;
 
     cv::Mat mask_front_left = CutImageMask(image_front_left_);
     cv::Mat mask_front = CutImageMask(image_front_);
     cv::Mat mask_front_right = CutImageMask(image_front_right_);
     cv::Mat mask_back_right = CutImageMask(image_back_right_);
-    cv::Mat mask_back = CutImageMask(image_back_);
+    // cv::Mat mask_back = CutImageMask(image_back_);
     cv::Mat mask_back_left = CutImageMask(image_back_left_);
     
     // save image to test 
@@ -172,7 +172,7 @@ cv::Mat ImageProcess::JoinBEVImage(){
     // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_right.jpg",image_back_right_);
 
     // joint images
-	int width = 5000; int height = 4000;
+	int width = 3500; int height = 3500;
     result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
 	// cv::Mat result_image_1 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
 	// cv::Mat ROI_1 = result_image_1(cv::Rect(0,                    0, w1, h1));
@@ -188,21 +188,21 @@ cv::Mat ImageProcess::JoinBEVImage(){
     // cv::Mat ROI_6 = result_image_6(cv::Rect(20,                   1303-413, w6, h6));
 
     //============polygon corner points=============
-    int x_fl_1 = 667; int y_fl_1 = 1190; int x_fl_2 = 1045; int y_fl_2 = 661; 
-    int x_f_1 = 471;  int y_f_1 = 477;   int x_f_2 = 1122;  int y_f_2 = 478;
-    int x_fr_1 = 480; int y_fr_1 = 640;  int x_fr_2 = 857;  int y_fr_2 = 1178;
-    int x_bl_1 = 617; int y_bl_1 = 538;  int x_bl_2 = 846;  int y_bl_2 = 1135;
-    int x_b_1 = 475;  int y_b_1 = 131;   int x_b_2 = 1148;  int y_b_2 = 132;
-    int x_br_1 = 407; int y_br_1 = 1140; int x_br_2 = 625;  int y_br_2 = 527;
+    int x_fl_1 = 773; int y_fl_1 = 1270; int x_fl_2 = 1151; int y_fl_2 = 740; 
+    int x_f_1 = 475;  int y_f_1 = 600;   int x_f_2 = 1119;  int y_f_2 = 600;
+    int x_fr_1 = 691; int y_fr_1 = 709;  int x_fr_2 = 1063;  int y_fr_2 = 1251;
+    int x_bl_1 = 746; int y_bl_1 = 623;  int x_bl_2 = 971;  int y_bl_2 = 1216;
+    int x_b_1 = 272;  int y_b_1 = 18;   int x_b_2 = 1401;  int y_b_2 = 20;
+    int x_br_1 = 637; int y_br_1 = 1220; int x_br_2 = 853;  int y_br_2 = 615;
     //============polygon corner points=============
 
     //==========image position - start xy===========
     int X_fl = 0;                       int Y_fl = 0;
     int X_f = x_fl_2 - x_f_1;           int Y_f = y_fl_2 - y_f_1;
-    int X_fr = X_f + x_f_2 - x_fr_1;    int Y_fr = 0;
+    int X_fr = X_f + x_f_2 - x_fr_1;    int Y_fr = Y_f + y_f_2 - y_fr_1;
     int X_bl = x_fl_1 - x_bl_1;         int Y_bl = y_fl_1 - y_bl_1;
     int X_b = X_bl + x_bl_2 - x_b_1;    int Y_b = Y_bl + y_bl_2 - y_b_1;
-    int X_br = X_fr + x_fr_2 - x_br_2;  int Y_br = y_fr_2 - y_br_2;
+    int X_br = X_fr + x_fr_2 - x_br_2;  int Y_br = Y_fr + y_fr_2 - y_br_2;
     int vehicle_X = X_f+x_f_1;          int vehicle_Y = y_fl_1; 
     int vehicle_W = x_f_2 - x_f_1;      int vehicle_H = Y_b + y_b_1 - y_f_1;
     //==========image position - start xy===========
@@ -213,9 +213,9 @@ cv::Mat ImageProcess::JoinBEVImage(){
 	cv::Mat ROI_1 = result_image(cv::Rect(X_fl, Y_fl, w1, h1));        // front_left
 	cv::Mat ROI_2 = result_image(cv::Rect(X_f,  Y_f,  w2, h2));        // front
     cv::Mat ROI_3 = result_image(cv::Rect(X_fr, Y_fr, w3, h3));        // front_right
-    cv::Mat ROI_4 = result_image(cv::Rect(X_br+20, Y_br, w4, h4));     // back_right
-    cv::Mat ROI_5 = result_image(cv::Rect(X_b,  Y_b, w5, h5));         // back
-    cv::Mat ROI_6 = result_image(cv::Rect(X_bl-2, Y_bl, w6, h6));      // back_left
+    cv::Mat ROI_4 = result_image(cv::Rect(X_br, Y_br, w4, h4));     // back_right
+    // cv::Mat ROI_5 = result_image(cv::Rect(X_f,  Y_b, w5, h5));         // back
+    cv::Mat ROI_6 = result_image(cv::Rect(X_bl, Y_bl, w6, h6));      // back_left
     cv::Mat ROI_7 = result_image(cv::Rect(vehicle_X, vehicle_Y, vehicle_W, vehicle_H));    // vehicle_model
 
     //=============test1==================
@@ -227,13 +227,12 @@ cv::Mat ImageProcess::JoinBEVImage(){
     // cv::Mat ROI_6 = result_image(cv::Rect(20,                   1303-413, w6, h6));
     // cv::Mat ROI_7 = result_image(cv::Rect(1205,                 685, 802, 1432-65));
     //=============test1==================
-
+    image_front_.copyTo(ROI_2, mask_front);
     image_front_left_.copyTo(ROI_1, mask_front_left);
     image_front_right_.copyTo(ROI_3, mask_front_right);
-    image_front_.copyTo(ROI_2, mask_front);
+    // image_back_.copyTo(ROI_5, mask_back);
 	image_back_right_.copyTo(ROI_4, mask_back_right);
     image_back_left_.copyTo(ROI_6, mask_back_left);
-    image_back_.copyTo(ROI_5, mask_back);
 
     // result_image = FuseImage(FuseImage(FuseImage(FuseImage(FuseImage(result_image_1, result_image_2), result_image_3), result_image_4), result_image_5), result_image_6);
 
@@ -254,7 +253,7 @@ cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image, std::vector<cv::Point3
     //**parameters of ROI area cut from camera images**//
     float roi_x0=0;
     float roi_y0=0;
-    float ROI_HEIGHT=5000;
+    float ROI_HEIGHT=8000;
     float ROI_WIDTH=1600;
     //************************//
 
@@ -264,15 +263,15 @@ cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image, std::vector<cv::Point3
     //=============test1==================
 
     cv::Point2f P1, P2, P3, P4;
-    P3.x = points[0].x; P3.y = 900 - points[0].y;
-    P4.x = points[1].x; P4.y = 900 - points[1].y;
-    P1.x = points[2].x; P1.y = 900 - points[2].y;
-    P2.x = points[3].x; P2.y = 900 - points[3].y;
+    P1.x = points[0].x; P1.y = 900 - points[0].y;
+    P2.x = points[1].x; P2.y = 900 - points[1].y;
+    P3.x = points[2].x; P3.y = 900 - points[2].y;
+    P4.x = points[3].x; P4.y = 900 - points[3].y;
 
-    corners.push_back(P1);
-    corners.push_back(P2);
     corners.push_back(P3);
     corners.push_back(P4);
+    corners.push_back(P1);
+    corners.push_back(P2);
 
     // set width of perspective image
     float IPM_WIDTH=1600;
@@ -307,19 +306,31 @@ cv::Mat ImageProcess::BirdEyeView(std::vector<cv::Mat> images){
     // directly choose points in camera coordinate
     std::vector<cv::Point3f> real_points;
     std::vector<cv::Point3f> points;
+    std::vector<cv::Point3f> real_back_points;
 
     //=============test1==================
     // cv::Point3f P1(-5.f, -10.f, 20.f), P2(5.f, -10.f, 20.f), 
     //             P3(-5.f, -10.f, 30.f), P4(5.f, -10.f, 30.f);
     //=============test1==================
 
-    cv::Point3f P1(-5.f, -10.f, 15.f), P2(5.f, -10.f, 15.f), 
-                P3(-5.f, -10.f, 60.f), P4(5.f, -10.f, 60.f);
+    // cv::Point3f P1(-5.f, -10.f, 10.f), P2(5.f, -10.f, 10.f), 
+    //             P3(-5.f, -10.f, 60.f), P4(5.f, -10.f, 60.f);
+
+    cv::Point3f P1(-5.f, -10.f, 10.f), P2(5.f, -10.f, 10.f), 
+                P3(-5.f, -10.f, 50.f), P4(5.f, -10.f, 50.f);
 
     real_points.push_back(P1);
     real_points.push_back(P2);
     real_points.push_back(P3);
     real_points.push_back(P4);
+
+    cv::Point3f Pb1(-5.f, -10.f, 35.f), Pb2(5.f, -10.f, 35.f), 
+                Pb3(-5.f, -10.f, 50.f), Pb4(5.f, -10.f, 50.f);
+
+    real_back_points.push_back(Pb1);
+    real_back_points.push_back(Pb2);
+    real_back_points.push_back(Pb3);
+    real_back_points.push_back(Pb4);
 
     // transform images
     ParamProcess processor;
@@ -336,7 +347,7 @@ cv::Mat ImageProcess::BirdEyeView(std::vector<cv::Mat> images){
     points = processor.GetPoints(real_points, "CAM_BACK_RIGHT");
     image_back_right_ = PerspectiveTransform(images[3], points);
 
-    points = processor.GetPoints(real_points, "CAM_BACK");
+    points = processor.GetPoints(real_back_points, "CAM_BACK");
     image_back_ = PerspectiveTransform(images[4], points);
 
     points = processor.GetPoints(real_points, "CAM_BACK_LEFT");
@@ -346,7 +357,7 @@ cv::Mat ImageProcess::BirdEyeView(std::vector<cv::Mat> images){
     // cv::resize(image_back_,image_back_,cv::Size(image_back_.cols * 1.4557, image_back_.rows));
     //=============test1==================
 
-    cv::resize(image_back_,image_back_,cv::Size(image_back_.cols * 1.49926, image_back_.rows));
+    // cv::resize(image_back_,image_back_,cv::Size(image_back_.cols * 1.49926, image_back_.rows));
 
     // join images
     result_image = JoinBEVImage();
