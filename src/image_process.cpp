@@ -218,15 +218,6 @@ cv::Mat ImageProcess::JoinBEVImage(){
     cv::Mat ROI_6 = result_image(cv::Rect(X_bl, Y_bl, w6, h6));      // back_left
     cv::Mat ROI_7 = result_image(cv::Rect(vehicle_X, vehicle_Y, vehicle_W, vehicle_H));    // vehicle_model
 
-    //=============test1==================
-	// cv::Mat ROI_1 = result_image(cv::Rect(0,                    0, w1, h1));
-	// cv::Mat ROI_2 = result_image(cv::Rect(805,                  685-620,  w2, h2));
-    // cv::Mat ROI_3 = result_image(cv::Rect(805+1202-319,         0, w3, h3));
-    // cv::Mat ROI_4 = result_image(cv::Rect(805+1202-319+770-507, 1339-414, w4, h4));
-    // cv::Mat ROI_5 = result_image(cv::Rect(20+1002-581,          1303-413+1162-107, w5, h5));
-    // cv::Mat ROI_6 = result_image(cv::Rect(20,                   1303-413, w6, h6));
-    // cv::Mat ROI_7 = result_image(cv::Rect(1205,                 685, 802, 1432-65));
-    //=============test1==================
     image_front_.copyTo(ROI_2, mask_front);
     image_front_left_.copyTo(ROI_1, mask_front_left);
     image_front_right_.copyTo(ROI_3, mask_front_right);
@@ -256,11 +247,6 @@ cv::Mat ImageProcess::PerspectiveTransform(cv::Mat image, std::vector<cv::Point3
     float ROI_HEIGHT=8000;
     float ROI_WIDTH=1600;
     //************************//
-
-    //=============test1==================
-    // cv::Point2f P1(700.f, 600.f), P2(900.f, 600.f), 
-    //             P3(600.f, 900.f), P4(1000.f, 900.f);
-    //=============test1==================
 
     cv::Point2f P1, P2, P3, P4;
     P1.x = points[0].x; P1.y = 900 - points[0].y;
@@ -308,11 +294,6 @@ cv::Mat ImageProcess::BirdEyeView(std::vector<cv::Mat> images){
     std::vector<cv::Point3f> points;
     std::vector<cv::Point3f> real_back_points;
 
-    //=============test1==================
-    // cv::Point3f P1(-5.f, -10.f, 20.f), P2(5.f, -10.f, 20.f), 
-    //             P3(-5.f, -10.f, 30.f), P4(5.f, -10.f, 30.f);
-    //=============test1==================
-
     // cv::Point3f P1(-5.f, -10.f, 10.f), P2(5.f, -10.f, 10.f), 
     //             P3(-5.f, -10.f, 60.f), P4(5.f, -10.f, 60.f);
 
@@ -352,10 +333,6 @@ cv::Mat ImageProcess::BirdEyeView(std::vector<cv::Mat> images){
 
     points = processor.GetPoints(real_points, "CAM_BACK_LEFT");
     image_back_left_ = PerspectiveTransform(images[5], points);
-
-    //=============test1==================
-    // cv::resize(image_back_,image_back_,cv::Size(image_back_.cols * 1.4557, image_back_.rows));
-    //=============test1==================
 
     // cv::resize(image_back_,image_back_,cv::Size(image_back_.cols * 1.49926, image_back_.rows));
 
