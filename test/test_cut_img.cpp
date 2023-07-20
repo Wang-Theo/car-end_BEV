@@ -4,7 +4,7 @@ using namespace bevlidar;
 
 int main(int argc, char **argv){
     ImageProcess processor;
-    cv::Mat img = cv::imread("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back.jpg");
+    cv::Mat img = cv::imread("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_left.png");
     img = processor.CutImageMask(img);
     std::cout << "image width: " << img.cols << std::endl;
     std::cout << "image height: " << img.rows << std::endl;

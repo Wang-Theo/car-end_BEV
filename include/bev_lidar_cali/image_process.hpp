@@ -31,7 +31,7 @@ class ImageProcess{
         cv::Mat BirdEyeView(std::vector<cv::Mat> images);
         cv::Mat PerspectiveTransform(cv::Mat image, std::vector<cv::Point3f> points);
         cv::Mat JoinImageDirect(std::vector<cv::Mat> images);
-        cv::Mat FuseImage(cv::Mat image1, cv::Mat image2);
+        cv::Mat FuseImage(cv::Mat image1, cv::Mat image2, cv::Mat image3, cv::Mat image4, cv::Mat image5);
         cv::Mat RotateImage(cv::Mat image, int w, int h, double angle, double scale);
         cv::Mat CutImageMask(cv::Mat image);
         cv::Mat JoinBEVImage();

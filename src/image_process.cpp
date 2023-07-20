@@ -45,40 +45,36 @@ cv::Mat ImageProcess::JoinImageDirect(std::vector<cv::Mat> images){
     return result_image;
 }
 
-cv::Mat ImageProcess::FuseImage(cv::Mat image1, cv::Mat image2){
-    cv::Mat output_image(image1.cols, image1.rows, CV_8UC3, cv::Scalar(0, 0, 0));
+cv::Mat ImageProcess::FuseImage(cv::Mat image1, cv::Mat image2, cv::Mat image3, cv::Mat image4, cv::Mat image5){
+    cv::Mat output_image(image1.cols, image1.rows, CV_8UC4, cv::Scalar(0, 0, 0, 0));
 
     // for(int i =0; i<output_image.cols; i++){
     //     for(int j=0; j<output_image.rows; j++){
-
-    //         if(   (image1.at<cv::Vec3b>(i, j)[0] == 0
-    //               && image1.at<cv::Vec3b>(i, j)[1] == 0
-    //               && image1.at<cv::Vec3b>(i, j)[2] == 0)
-    //             &&(image2.at<cv::Vec3b>(i, j)[0] != 0
-    //               && image2.at<cv::Vec3b>(i, j)[1] != 0
-    //               && image2.at<cv::Vec3b>(i, j)[2] != 0)){
-    //                 output_image.at<cv::Vec3b>(i, j)[0] = image2.at<cv::Vec3b>(i, j)[0];
-    //                 output_image.at<cv::Vec3b>(i, j)[1] = image2.at<cv::Vec3b>(i, j)[1];
-    //                 output_image.at<cv::Vec3b>(i, j)[2] = image2.at<cv::Vec3b>(i, j)[2];
+    //         if(   (image1.at<cv::Vec4b>(i, j)[3] == 0)&&(image2.at<cv::Vec4b>(i, j)[3] != 0)){
+    //                 output_image.at<cv::Vec4b>(i, j)[0] = image2.at<cv::Vec4b>(i, j)[0];
+    //                 output_image.at<cv::Vec4b>(i, j)[1] = image2.at<cv::Vec4b>(i, j)[1];
+    //                 output_image.at<cv::Vec4b>(i, j)[2] = image2.at<cv::Vec4b>(i, j)[2];
+    //                 output_image.at<cv::Vec4b>(i, j)[3] = 1;
     //             }
-    //         else if((image2.at<cv::Vec3b>(i, j)[0] == 0
-    //               && image2.at<cv::Vec3b>(i, j)[1] == 0
-    //               && image2.at<cv::Vec3b>(i, j)[2] == 0)
-    //             &&(image1.at<cv::Vec3b>(i, j)[0] != 0
-    //               && image1.at<cv::Vec3b>(i, j)[1] != 0
-    //               && image1.at<cv::Vec3b>(i, j)[2] != 0)){
-    //                 output_image.at<cv::Vec3b>(i, j)[0] = image1.at<cv::Vec3b>(i, j)[0];
-    //                 output_image.at<cv::Vec3b>(i, j)[1] = image1.at<cv::Vec3b>(i, j)[1];
-    //                 output_image.at<cv::Vec3b>(i, j)[2] = image1.at<cv::Vec3b>(i, j)[2];
+    //         else if((image2.at<cv::Vec4b>(i, j)[3] == 0)&&(image1.at<cv::Vec4b>(i, j)[3] != 0)){
+    //                 output_image.at<cv::Vec4b>(i, j)[0] = image1.at<cv::Vec4b>(i, j)[0];
+    //                 output_image.at<cv::Vec4b>(i, j)[1] = image1.at<cv::Vec4b>(i, j)[1];
+    //                 output_image.at<cv::Vec4b>(i, j)[2] = image1.at<cv::Vec4b>(i, j)[2];
+    //                 output_image.at<cv::Vec4b>(i, j)[3] = 1;
     //             }
     //         else{
-    //                 output_image.at<cv::Vec3b>(i, j)[0] = (image1.at<cv::Vec3b>(i, j)[0] + image2.at<cv::Vec3b>(i, j)[0])/2;
-    //                 output_image.at<cv::Vec3b>(i, j)[1] = (image1.at<cv::Vec3b>(i, j)[1] + image2.at<cv::Vec3b>(i, j)[1])/2;
-    //                 output_image.at<cv::Vec3b>(i, j)[2] = (image1.at<cv::Vec3b>(i, j)[2] + image2.at<cv::Vec3b>(i, j)[2])/2;
+    //                 output_image.at<cv::Vec4b>(i, j)[0] = (image1.at<cv::Vec4b>(i, j)[0] + image2.at<cv::Vec4b>(i, j)[0])/2;
+    //                 output_image.at<cv::Vec4b>(i, j)[1] = (image1.at<cv::Vec4b>(i, j)[1] + image2.at<cv::Vec4b>(i, j)[1])/2;
+    //                 output_image.at<cv::Vec4b>(i, j)[2] = (image1.at<cv::Vec4b>(i, j)[2] + image2.at<cv::Vec4b>(i, j)[2])/2;
+    //                 output_image.at<cv::Vec4b>(i, j)[3] = 1;
     //         }
     //     }
     // }
-    cv::addWeighted(image1, 0.5, image2, 0.5, 0, output_image);
+
+    // cv::addWeighted(image1, 0.5, image2, 0.5, 0, output_image);
+    // cv::addWeighted(output_image, 0.5, image3, 0.5, 0, output_image);
+    // cv::addWeighted(output_image, 0.5, image4, 0.5, 0, output_image);
+    // cv::addWeighted(output_image, 0.5, image5, 0.5, 0, output_image);
     return output_image;
 }
 
@@ -90,23 +86,23 @@ cv::Mat ImageProcess::CutImageMask(cv::Mat image){
     cv::threshold(mask, mask, 1, 255, cv::THRESH_BINARY);
 
     // Shi-Tomasi corners detection
-    cv::Mat mask_with_corner = mask.clone();
-    std::vector<cv::Point2f> corners;   // corners's postion
-	int maxcorners = 6;                 // maximal corners' number to be detected
-	double qualityLevel = 0.1;          // minimal eigenvalue
-	double minDistance = 400;	        // minimal distance between corners
-	int blockSize = 50;
-	double  k = 0.04;                   // weight coefficient
+    // cv::Mat mask_with_corner = mask.clone();
+    // std::vector<cv::Point2f> corners;   // corners's postion
+	// int maxcorners = 6;                 // maximal corners' number to be detected
+	// double qualityLevel = 0.1;          // minimal eigenvalue
+	// double minDistance = 400;	        // minimal distance between corners
+	// int blockSize = 50;
+	// double  k = 0.04;                   // weight coefficient
  
-	cv::goodFeaturesToTrack(mask_with_corner, corners, maxcorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
+	// cv::goodFeaturesToTrack(mask_with_corner, corners, maxcorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
  
-	std::cout << "Corners number: " << corners.size() << std::endl; // output info
+	// std::cout << "Corners number: " << corners.size() << std::endl; // output info
 
-	for (unsigned i = 0; i < corners.size(); i++)
-	{
-		circle(mask_with_corner, corners[i], 10, cv::Scalar(0,255,255),4);  // draw corners
-		std::cout << "Corner location: " << corners[i] << std::endl;     // output corners' position
-	}
+	// for (unsigned i = 0; i < corners.size(); i++)
+	// {
+	// 	circle(mask_with_corner, corners[i], 10, cv::Scalar(0,255,255),4);  // draw corners
+	// 	std::cout << "Corner location: " << corners[i] << std::endl;     // output corners' position
+	// }
 
     // detect outline
     // std::vector<std::vector<cv::Point>> contours;
@@ -118,7 +114,7 @@ cv::Mat ImageProcess::CutImageMask(cv::Mat image){
     //     cv::drawContours(image, contours, index, (0,0,255), 2,8,hierarchy);
 	// }
 
-    return mask_with_corner;
+    return mask;
 }
 
 cv::Mat ImageProcess::RotateImage(cv::Mat image, int w, int h, double angle, double scale){
@@ -132,7 +128,7 @@ cv::Mat ImageProcess::RotateImage(cv::Mat image, int w, int h, double angle, dou
     R.at<double>(0, 2) += (bound_w - w) / 2;
     R.at<double>(1, 2) += (bound_h - h) / 2;
 
-    cv::warpAffine(image, image, R, cv::Size(bound_h,bound_w+600));
+    cv::warpAffine(image, image, R, cv::Size(bound_h,bound_w+200));
     return image;
 }
 
@@ -142,11 +138,8 @@ cv::Mat ImageProcess::JoinBEVImage(){
     // rotate images
     image_front_left_ = RotateImage(image_front_left_, image_front_left_.cols, image_front_left_.rows, 55, 1);
     image_front_right_ = RotateImage(image_front_right_, image_front_right_.cols, image_front_right_.rows, -55, 1);
-    // cv::rotate(image_back_, image_back_, cv::ROTATE_180);
-    cv::rotate(image_back_right_, image_back_right_, cv::ROTATE_180);
-    cv::rotate(image_back_left_, image_back_left_, cv::ROTATE_180);
-    image_back_right_ = RotateImage(image_back_right_, image_back_right_.cols, image_back_right_.rows, 70, 1);
-    image_back_left_ = RotateImage(image_back_left_, image_back_left_.cols, image_back_left_.rows, -70, 1);
+    image_back_right_ = RotateImage(image_back_right_, image_back_right_.cols, image_back_right_.rows, -110, 1);
+    image_back_left_ = RotateImage(image_back_left_, image_back_left_.cols, image_back_left_.rows, 110, 1);
 
     // get images' width and height again
     int w1 = image_front_left_.cols;    int h1 = image_front_left_.rows;
@@ -164,29 +157,19 @@ cv::Mat ImageProcess::JoinBEVImage(){
     cv::Mat mask_back_left = CutImageMask(image_back_left_);
     
     // save image to test 
-    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front.jpg",image_front_);
-    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_left.jpg",image_front_left_);
-    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_right.jpg",image_front_right_);
-    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back.jpg",image_back_);
-    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_left.jpg",image_back_left_);
-    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_right.jpg",image_back_right_);
+    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front.png",image_front_);
+    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_left.png",image_front_left_);
+    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_right.png",image_front_right_);
+    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back.png",image_back_);
+    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_left.png",image_back_left_);
+    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_right.png",image_back_right_);
 
     // joint images
-	int width = 3500; int height = 3500;
-    result_image = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
-	// cv::Mat result_image_1 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
-	// cv::Mat ROI_1 = result_image_1(cv::Rect(0,                    0, w1, h1));
-    // cv::Mat result_image_2 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
-	// cv::Mat ROI_2 = result_image_2(cv::Rect(805,                  685-620,  w2, h2));
-    // cv::Mat result_image_3 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
-    // cv::Mat ROI_3 = result_image_3(cv::Rect(805+1202-319,         0, w3, h3));
-    // cv::Mat result_image_4 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
-    // cv::Mat ROI_4 = result_image_4(cv::Rect(805+1202-319+770-507, 1339-414, w4, h4));
-    // cv::Mat result_image_5 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
-    // cv::Mat ROI_5 = result_image_5(cv::Rect(20+1002-581,          1303-413+1162-107, w5, h5));
-    // cv::Mat result_image_6 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
-    // cv::Mat ROI_6 = result_image_6(cv::Rect(20,                   1303-413, w6, h6));
+	int width = 3300; int height = 3300;
+    result_image = cv::Mat(height, width, CV_8UC4, cv::Scalar::all(0));
 
+    int w_f = 1600; int h_f = 1100;
+    int w_fl = 1941; int h_fl = 2418;
     //============polygon corner points=============
     int x_fl_1 = 773; int y_fl_1 = 1270; int x_fl_2 = 1151; int y_fl_2 = 740; 
     int x_f_1 = 475;  int y_f_1 = 600;   int x_f_2 = 1119;  int y_f_2 = 600;
@@ -210,12 +193,23 @@ cv::Mat ImageProcess::JoinBEVImage(){
     // ratio_image_back = (1.0*(X_br + x_br_1 - x_bl_2))/(1.0*(x_b_2 - x_b_1));
     // std::cout << "\n"<<ratio_image_back << std::endl;
 
-	cv::Mat ROI_1 = result_image(cv::Rect(X_fl, Y_fl, w1, h1));        // front_left
+    // cv::Mat result_image_1 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+	// cv::Mat ROI_1 = result_image_1(cv::Rect(X_fl+70, Y_fl, w1, h1));        // front_left
+    // cv::Mat result_image_2 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+	// cv::Mat ROI_2 = result_image_2(cv::Rect(X_f,  Y_f,  w2, h2));        // front
+    // cv::Mat result_image_3 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+    // cv::Mat ROI_3 = result_image_3(cv::Rect(X_fr-60, Y_fr+40, w3, h3));        // front_right
+    // cv::Mat result_image_4 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+    // cv::Mat ROI_4 = result_image_4(cv::Rect(X_br-20, Y_br+15, w4, h4));     // back_right
+    // // cv::Mat ROI_5 = result_image(cv::Rect(X_f,  Y_b, w5, h5));         // back
+    // cv::Mat result_image_5 = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
+    // cv::Mat ROI_6 = result_image_5(cv::Rect(X_bl+45, Y_bl-70, w6, h6));      // back_left
+    
+	cv::Mat ROI_1 = result_image(cv::Rect(X_fl+70, Y_fl, w1, h1));        // front_left
 	cv::Mat ROI_2 = result_image(cv::Rect(X_f,  Y_f,  w2, h2));        // front
-    cv::Mat ROI_3 = result_image(cv::Rect(X_fr, Y_fr, w3, h3));        // front_right
-    cv::Mat ROI_4 = result_image(cv::Rect(X_br, Y_br, w4, h4));     // back_right
-    // cv::Mat ROI_5 = result_image(cv::Rect(X_f,  Y_b, w5, h5));         // back
-    cv::Mat ROI_6 = result_image(cv::Rect(X_bl, Y_bl, w6, h6));      // back_left
+    cv::Mat ROI_3 = result_image(cv::Rect(X_fr-60, Y_fr+40, w3, h3));        // front_right
+    cv::Mat ROI_4 = result_image(cv::Rect(X_br-20, Y_br+15, w4, h4));     // back_right
+    cv::Mat ROI_6 = result_image(cv::Rect(X_bl+45, Y_bl-70, w6, h6));      // back_left
     cv::Mat ROI_7 = result_image(cv::Rect(vehicle_X, vehicle_Y, vehicle_W, vehicle_H));    // vehicle_model
 
     image_front_.copyTo(ROI_2, mask_front);
@@ -225,14 +219,14 @@ cv::Mat ImageProcess::JoinBEVImage(){
 	image_back_right_.copyTo(ROI_4, mask_back_right);
     image_back_left_.copyTo(ROI_6, mask_back_left);
 
-    // result_image = FuseImage(FuseImage(FuseImage(FuseImage(FuseImage(result_image_1, result_image_2), result_image_3), result_image_4), result_image_5), result_image_6);
+    // result_image = FuseImage(result_image_1, result_image_2, result_image_3, result_image_4, result_image_5);
 
     // add vehicle picture in middle
-    cv::Mat vehicle_picture = cv::imread("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/vehicle_picture.jpeg");
-    cv::resize(vehicle_picture, vehicle_picture, cv::Size(802,1432-65));
-    vehicle_picture.copyTo(ROI_7);
+    // cv::Mat vehicle_picture = cv::imread("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/vehicle_picture.png",-1);
+    // cv::resize(vehicle_picture, vehicle_picture, cv::Size(vehicle_W,vehicle_H));
+    // vehicle_picture.copyTo(ROI_7);
 
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.jpg",result_image);
+    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.png",result_image);
     if(result_image.empty()) std::cout<<"\n======fail to joint image======"<<std::endl;
     return result_image;
 }
@@ -305,13 +299,13 @@ cv::Mat ImageProcess::BirdEyeView(std::vector<cv::Mat> images){
     real_points.push_back(P3);
     real_points.push_back(P4);
 
-    cv::Point3f Pb1(-5.f, -10.f, 35.f), Pb2(5.f, -10.f, 35.f), 
-                Pb3(-5.f, -10.f, 50.f), Pb4(5.f, -10.f, 50.f);
+    // cv::Point3f Pb1(-5.f, -10.f, 35.f), Pb2(5.f, -10.f, 35.f), 
+    //             Pb3(-5.f, -10.f, 50.f), Pb4(5.f, -10.f, 50.f);
 
-    real_back_points.push_back(Pb1);
-    real_back_points.push_back(Pb2);
-    real_back_points.push_back(Pb3);
-    real_back_points.push_back(Pb4);
+    // real_back_points.push_back(Pb1);
+    // real_back_points.push_back(Pb2);
+    // real_back_points.push_back(Pb3);
+    // real_back_points.push_back(Pb4);
 
     // transform images
     ParamProcess processor;
@@ -328,8 +322,8 @@ cv::Mat ImageProcess::BirdEyeView(std::vector<cv::Mat> images){
     points = processor.GetPoints(real_points, "CAM_BACK_RIGHT");
     image_back_right_ = PerspectiveTransform(images[3], points);
 
-    points = processor.GetPoints(real_back_points, "CAM_BACK");
-    image_back_ = PerspectiveTransform(images[4], points);
+    // points = processor.GetPoints(real_back_points, "CAM_BACK");
+    // image_back_ = PerspectiveTransform(images[4], points);
 
     points = processor.GetPoints(real_points, "CAM_BACK_LEFT");
     image_back_left_ = PerspectiveTransform(images[5], points);
@@ -339,8 +333,6 @@ cv::Mat ImageProcess::BirdEyeView(std::vector<cv::Mat> images){
     // join images
     result_image = JoinBEVImage();
 
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.jpg",result_image);
-    if(result_image.empty()) std::cout<<"\n======fail to joint image======"<<std::endl;
     return result_image;
 }
 
