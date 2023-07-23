@@ -35,7 +35,7 @@ class ImageProcess{
         cv::Mat RotateImage(cv::Mat image, int w, int h, double angle, double scale);
         cv::Mat CutImageMask(cv::Mat image);
         cv::Mat JoinBEVImage();
-        cv::Mat OrbDetect(std::vector<cv::Mat> images);
+        std::vector<cv::Mat> OrbDetect(std::vector<cv::Mat> images);
 };
 } // namespace bevlidar
 

@@ -2,27 +2,31 @@
 
 namespace bevlidar {
 
-cv::Mat ImageProcess::OrbDetect(std::vector<cv::Mat> images){
+std::vector<cv::Mat> ImageProcess::OrbDetect(std::vector<cv::Mat> images){
     // ORB Detection
-    cv::Mat result_image;
+    cv::Mat result_img;
+    std::vector<cv::Mat> result_images;
 	// create ORB detection
 	cv::Ptr<cv::ORB> orb = cv::ORB::create();
 	// create descriptor  
 	std::vector<cv::KeyPoint> keypoint;
     std::vector<cv::KeyPoint> keypoint_filtered;
 	cv::Mat descriptor;
-	// detect and draw
-	orb->detectAndCompute(images[1], cv::Mat(), keypoint, descriptor);
-    
-    for(int i =0; i<keypoint.size(); i++){
-        if(keypoint[i].pt.y>300)
-            keypoint_filtered.push_back(keypoint[i]);
-    }
-    drawKeypoints(images[1], keypoint_filtered, result_image, cv::Scalar(0, 255, 0), cv::DrawMatchesFlags::DEFAULT);
+    for(int i=0; i<images.size(); i++){
+        // detect and draw
+        orb->detectAndCompute(images[i], cv::Mat(), keypoint, descriptor);
+        
+        for(int j =0; j<keypoint.size(); j++){
+            if(keypoint[j].pt.y>300)
+                keypoint_filtered.push_back(keypoint[j]);
+        }
+        drawKeypoints(images[i], keypoint_filtered, result_img, cv::Scalar(0, 255, 0), cv::DrawMatchesFlags::DEFAULT);
 
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.jpg",result_image);
-    if(result_image.empty()) std::cout<<"\n======fail to detect orb======"<<std::endl;
-    return result_image;
+        if(result_img.empty()) std::cout<<"\n======fail to detect orb======"<<std::endl;
+        result_images.push_back(result_img);
+    }
+
+    return result_images;
 }
 
 cv::Mat ImageProcess::JoinImageDirect(std::vector<cv::Mat> images){
@@ -86,23 +90,23 @@ cv::Mat ImageProcess::CutImageMask(cv::Mat image){
     cv::threshold(mask, mask, 1, 255, cv::THRESH_BINARY);
 
     // Shi-Tomasi corners detection
-    cv::Mat mask_with_corner = mask.clone();
-    std::vector<cv::Point2f> corners;   // corners's postion
-	int maxcorners = 6;                 // maximal corners' number to be detected
-	double qualityLevel = 0.1;          // minimal eigenvalue
-	double minDistance = 400;	        // minimal distance between corners
-	int blockSize = 50;
-	double  k = 0.04;                   // weight coefficient
+    // cv::Mat mask_with_corner = mask.clone();
+    // std::vector<cv::Point2f> corners;   // corners's postion
+	// int maxcorners = 6;                 // maximal corners' number to be detected
+	// double qualityLevel = 0.1;          // minimal eigenvalue
+	// double minDistance = 400;	        // minimal distance between corners
+	// int blockSize = 50;
+	// double  k = 0.04;                   // weight coefficient
  
-	cv::goodFeaturesToTrack(mask_with_corner, corners, maxcorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
+	// cv::goodFeaturesToTrack(mask_with_corner, corners, maxcorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
  
-	std::cout << "Corners number: " << corners.size() << std::endl; // output info
+	// std::cout << "Corners number: " << corners.size() << std::endl; // output info
 
-	for (unsigned i = 0; i < corners.size(); i++)
-	{
-		circle(mask_with_corner, corners[i], 10, cv::Scalar(0,255,255),4);  // draw corners
-		std::cout << "Corner location: " << corners[i] << std::endl;     // output corners' position
-	}
+	// for (unsigned i = 0; i < corners.size(); i++)
+	// {
+	// 	circle(mask_with_corner, corners[i], 10, cv::Scalar(0,255,255),4);  // draw corners
+	// 	std::cout << "Corner location: " << corners[i] << std::endl;     // output corners' position
+	// }
 
     // detect outline
     // std::vector<std::vector<cv::Point>> contours;
@@ -114,7 +118,7 @@ cv::Mat ImageProcess::CutImageMask(cv::Mat image){
     //     cv::drawContours(image, contours, index, (0,0,255), 2,8,hierarchy);
 	// }
 
-    return mask_with_corner;
+    return mask;
 }
 
 cv::Mat ImageProcess::RotateImage(cv::Mat image, int w, int h, double angle, double scale){
@@ -157,12 +161,12 @@ cv::Mat ImageProcess::JoinBEVImage(){
     cv::Mat mask_back_left = CutImageMask(image_back_left_);
     
     // save image to test 
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front.png",image_front_);
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_left.png",image_front_left_);
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_right.png",image_front_right_);
-    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back.png",image_back_);
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_left.png",image_back_left_);
-    cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_right.png",image_back_right_);
+    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front.png",image_front_);
+    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_left.png",image_front_left_);
+    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_front_right.png",image_front_right_);
+    // // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back.png",image_back_);
+    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_left.png",image_back_left_);
+    // cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/test_img/test_img_back_right.png",image_back_right_);
 
     // joint images
 	int width = 3300; int height = 3300;
@@ -205,11 +209,11 @@ cv::Mat ImageProcess::JoinBEVImage(){
     // cv::Mat result_image_5 = cv::Mat(height, width, CV_8UC4, cv::Scalar::all(0));
     // cv::Mat ROI_6 = result_image_5(cv::Rect(X_bl+45, Y_bl-70, w6, h6));      // back_left
     
-	cv::Mat ROI_1 = result_image(cv::Rect(X_fl, Y_fl, w1, h1));        // front_left
+	cv::Mat ROI_1 = result_image(cv::Rect(X_fl+25, Y_fl, w1, h1));        // front_left
 	cv::Mat ROI_2 = result_image(cv::Rect(X_f,  Y_f,  w2, h2));        // front
-    cv::Mat ROI_3 = result_image(cv::Rect(X_fr, Y_fr, w3, h3));        // front_right
-    cv::Mat ROI_4 = result_image(cv::Rect(X_br, Y_br, w4, h4));     // back_right
-    cv::Mat ROI_6 = result_image(cv::Rect(X_bl, Y_bl, w6, h6));      // back_left
+    cv::Mat ROI_3 = result_image(cv::Rect(X_fr-5, Y_fr, w3, h3));        // front_right
+    cv::Mat ROI_4 = result_image(cv::Rect(X_br+5, Y_br-30, w4, h4));     // back_right
+    cv::Mat ROI_6 = result_image(cv::Rect(X_bl+10, Y_bl-60, w6, h6));      // back_left
 
 	// cv::Mat ROI_1 = result_image(cv::Rect(X_fl, Y_fl, w1, h1));        // front_left
 	// cv::Mat ROI_2 = result_image(cv::Rect(X_f,  Y_f,  w2, h2));        // front
@@ -234,7 +238,7 @@ cv::Mat ImageProcess::JoinBEVImage(){
     vehicle_picture.copyTo(ROI_7);
 
     // crop image
-    // result_image = result_image(cv::Rect(400, 300, 2100, 1600));
+    result_image = result_image(cv::Rect(200, 250, 2300, 1950));
 
     cv::imwrite("/home/renjie/workspace/catkin_ws/src/BEV_lidar_cali/images/result_image.png",result_image);
     if(result_image.empty()) std::cout<<"\n======fail to joint image======"<<std::endl;

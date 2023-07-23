@@ -33,3 +33,12 @@ target_link_libraries(test_cut_img
    ${CERES_LIBRARIES}
    ${JSON_INC_PATH}
 )
+
+add_executable(test_join_img_feature test_join_img_feature.cpp)
+target_link_libraries(test_join_img_feature
+    bev_lidar_cali
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBS}
+   ${CERES_LIBRARIES}
+   ${JSON_INC_PATH}
+)
