@@ -2,31 +2,35 @@
 
 namespace bevlidar {
 
-std::vector<cv::Mat> ImageProcess::OrbDetect(std::vector<cv::Mat> images){
-    // ORB Detection
-    cv::Mat result_img;
-    std::vector<cv::Mat> result_images;
-	// create ORB detection
-	cv::Ptr<cv::ORB> orb = cv::ORB::create();
-	// create descriptor  
-	std::vector<cv::KeyPoint> keypoint;
-    std::vector<cv::KeyPoint> keypoint_filtered;
-	cv::Mat descriptor;
-    for(int i=0; i<images.size(); i++){
-        // detect and draw
-        orb->detectAndCompute(images[i], cv::Mat(), keypoint, descriptor);
-        
-        for(int j =0; j<keypoint.size(); j++){
-            if(keypoint[j].pt.y>300)
-                keypoint_filtered.push_back(keypoint[j]);
-        }
-        drawKeypoints(images[i], keypoint_filtered, result_img, cv::Scalar(0, 255, 0), cv::DrawMatchesFlags::DEFAULT);
-
-        if(result_img.empty()) std::cout<<"\n======fail to detect orb======"<<std::endl;
-        result_images.push_back(result_img);
+cv::Mat ImageProcess::OrbDetect(cv::Mat image, std::string camera_name){
+    // set ROI area
+    int min_x = 0, min_y = 0, max_x = image.rows, max_y = image.cols;
+    if(camera_name == "CAM_FRONT_LEFT"){
+        min_x = 0; min_y = 1100;
+        max_x = 800; max_y = 1300;
+    }else if(camera_name == "CAM_BACK_LEFT"){
+        min_x = 0; min_y = 400;
+        max_x = 860; max_y = 700;
     }
 
-    return result_images;
+    // ORB Detection
+    cv::Mat result_img;
+	// create ORB detection
+	cv::Ptr<cv::ORB> orb = cv::ORB::create(500, 1.2f, 6, 31, 0, 2, cv::ORB::HARRIS_SCORE,31, 20);//FAST_SCORE
+
+    // detect and draw
+    orb->detectAndCompute(image, cv::Mat(), keypoint, descriptor);
+    
+    for(int j =0; j<keypoint.size(); j++){
+        if(keypoint[j].pt.x>min_x && keypoint[j].pt.x<max_x
+            && keypoint[j].pt.y>min_y && keypoint[j].pt.y<max_y)
+            keypoint_filtered.push_back(keypoint[j]);
+    }
+    drawKeypoints(image, keypoint_filtered, result_img, cv::Scalar(0, 255, 0), cv::DrawMatchesFlags::DEFAULT);
+
+    if(result_img.empty()) std::cout<<"\n======fail to detect orb======"<<std::endl;
+
+    return result_img;
 }
 
 cv::Mat ImageProcess::JoinImageDirect(std::vector<cv::Mat> images){

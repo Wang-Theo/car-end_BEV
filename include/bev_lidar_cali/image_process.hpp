@@ -27,6 +27,11 @@ class ImageProcess{
         cv::Mat image_back_left_;
         double ratio_image_back;
 
+        // create descriptor  
+        std::vector<cv::KeyPoint> keypoint;
+        std::vector<cv::KeyPoint> keypoint_filtered;
+        cv::Mat descriptor;
+
     public:
         cv::Mat BirdEyeView(std::vector<cv::Mat> images);
         cv::Mat PerspectiveTransform(cv::Mat image, std::vector<cv::Point3f> points);
@@ -35,7 +40,7 @@ class ImageProcess{
         cv::Mat RotateImage(cv::Mat image, int w, int h, double angle, double scale);
         cv::Mat CutImageMask(cv::Mat image);
         cv::Mat JoinBEVImage();
-        std::vector<cv::Mat> OrbDetect(std::vector<cv::Mat> images);
+        cv::Mat OrbDetect(cv::Mat image, std::string camera_name);
 };
 } // namespace bevlidar
 

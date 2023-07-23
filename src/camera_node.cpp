@@ -33,15 +33,13 @@ void CamBEV::ImageCallback(const sensor_msgs::ImageConstPtr& msg_img_front,
     */
 
     // =====process images from 6 cameras======
-    std::vector<cv::Mat> orb_images;
     switch (flag)
     {
     case 1:
         BEV_image = image_processor_->BirdEyeView(six_cam_images);
         break;
     case 2:
-        orb_images = image_processor_->OrbDetect(six_cam_images);
-        BEV_image = orb_images[1];
+        BEV_image = image_processor_->OrbDetect(six_cam_images[1],"CAM_FRONT");
         break;
     case 3:
         BEV_image = image_processor_->JoinImageDirect(six_cam_images);
