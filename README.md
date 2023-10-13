@@ -97,3 +97,11 @@ You can select camera by editing input of `GetPoints` function in `test_read_jso
   - Camera back left: `CAM_BACK_LEFT`
 
 <img src="/images/test_read_json.png" width="800" alt="test_read_json"/>
+
+### 3. test do bev:
+```
+roslaunch bev_lidar_cali nuscenes_toBEV.launch
+```
+A video available at [Google Drive](https://drive.google.com/file/d/1ctHiO9Mpl_HCP0iu9xUlXhaTUAE6kotB/view?usp=drive_link)
+
+<img src="/images/result_image.png" width="500" alt="result_image"/>
