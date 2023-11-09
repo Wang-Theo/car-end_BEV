@@ -5,11 +5,7 @@
 ![C++](https://img.shields.io/badge/Code-C++-informational?style=flat&logo=c%2B%2B&logoColor=white&color=2bbc8a)
 ![Python](https://img.shields.io/badge/Code-Python-informational?style=flat&logo=Python&logoColor=white&color=2bbc8a)
 
-This is a project to calibration car-end multi-camera system with road-end lidar.
-
-> Two implementation parts involved:
-> - Transform images from car-end multi-cameras to a image in bird’s eye view (BEV)
-> - Calibrate BEV image with road-end lidar
+This is a project to build car-end multi-camera BEV (bird’s eye view).
 
 ## Prerequisites
 
